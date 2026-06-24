@@ -1,6 +1,6 @@
-# 🛡️ AURA
-
 ![AURA-MOCKUP](./753245fa-d38c-4365-8747-89b88bcac159.png)
+
+# 🛡️ AURA
 
 **Seguridad ciudadana inteligente, comunitaria y privada para Perú.**
 
