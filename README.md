@@ -44,6 +44,16 @@ Licencia: MIT
 
 ---
 
+## Desarrollo Android
+
+```bash
+./gradlew :app:assembleDebug
+```
+
+El proyecto usa Kotlin, Jetpack Compose, Material 3, Gradle Kotlin DSL y el paquete base `io.aura.android`.
+
+---
+
 ## Objetivo del MVP 0.1
 
 El objetivo del MVP 0.1 es validar si una app ciudadana puede ayudar a comunidades locales a reportar, visualizar y reaccionar ante incidentes de seguridad de forma rápida, útil y responsable.
