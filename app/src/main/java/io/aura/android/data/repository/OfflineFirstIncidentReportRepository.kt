@@ -19,23 +19,25 @@ class OfflineFirstIncidentReportRepository @Inject constructor(
     private val incidentReportDao: IncidentReportDao,
     private val syncQueueDao: SyncQueueDao,
 ) : IncidentReportRepository {
-    override suspend fun createLocalReport(report: IncidentReport) {
+    override suspend fun createLocalReport(report: IncidentReport, queueForSync: Boolean) {
         database.withTransaction {
             incidentReportDao.upsert(report.toEntity())
-            syncQueueDao.upsert(
-                SyncQueueEntity(
-                    id = UUID.randomUUID().toString(),
-                    entityType = INCIDENT_REPORT_ENTITY_TYPE,
-                    entityId = report.id,
-                    operation = SyncOperation.CREATE,
-                    priority = SyncPriority.HIGH,
-                    status = SyncStatus.PENDING,
-                    attempts = 0,
-                    lastError = null,
-                    createdAtMillis = report.createdAtMillis,
-                    updatedAtMillis = report.updatedAtMillis,
-                ),
-            )
+            if (queueForSync) {
+                syncQueueDao.upsert(
+                    SyncQueueEntity(
+                        id = UUID.randomUUID().toString(),
+                        entityType = INCIDENT_REPORT_ENTITY_TYPE,
+                        entityId = report.id,
+                        operation = SyncOperation.CREATE,
+                        priority = SyncPriority.HIGH,
+                        status = SyncStatus.PENDING,
+                        attempts = 0,
+                        lastError = null,
+                        createdAtMillis = report.createdAtMillis,
+                        updatedAtMillis = report.updatedAtMillis,
+                    ),
+                )
+            }
         }
     }
 }

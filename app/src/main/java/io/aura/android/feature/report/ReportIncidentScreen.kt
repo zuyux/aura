@@ -22,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -266,10 +267,18 @@ fun ReportIncidentScreen(
 
             uiState.savedReportId?.let {
                 Text(
-                    text = "Reporte guardado localmente y agregado a sincronización pendiente.",
+                    text = uiState.savedReportMessage.orEmpty(),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium,
                 )
+            }
+
+            OutlinedButton(
+                onClick = viewModel::saveDraft,
+                enabled = uiState.canSaveDraft,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(if (uiState.isSavingDraft) "Guardando borrador..." else "Guardar borrador")
             }
 
             AuraPrimaryButton(

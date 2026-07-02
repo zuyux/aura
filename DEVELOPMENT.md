@@ -208,7 +208,7 @@ Muted Text
 
 * [X] Add submit button
 
-* [ ] Save report locally as `DRAFT`
+* [X] Save report locally as `DRAFT`
 
 * [X] Submit report as `PENDING_SYNC`
 

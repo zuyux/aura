@@ -10,6 +10,8 @@ import io.aura.android.domain.model.LocationPrecision
 import io.aura.android.domain.model.SeverityLevel
 import io.aura.android.domain.usecase.CreateIncidentReportInput
 import io.aura.android.domain.usecase.CreateIncidentReportUseCase
+import io.aura.android.domain.usecase.SaveIncidentReportDraftInput
+import io.aura.android.domain.usecase.SaveIncidentReportDraftUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ReportIncidentViewModel @Inject constructor(
     private val createIncidentReport: CreateIncidentReportUseCase,
+    private val saveIncidentReportDraft: SaveIncidentReportDraftUseCase,
     private val locationProvider: LocationProvider,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ReportIncidentUiState())
@@ -141,6 +144,7 @@ class ReportIncidentViewModel @Inject constructor(
                         locationPrecision = it.locationPrecision,
                         isLocationConfirmed = it.isLocationConfirmed,
                         savedReportId = report.id,
+                        savedReportMessage = "Reporte guardado localmente y agregado a sincronizacion pendiente.",
                     )
                 }
             }.onFailure { error ->
@@ -148,6 +152,55 @@ class ReportIncidentViewModel @Inject constructor(
                     it.copy(
                         isSubmitting = false,
                         errorMessage = error.message ?: "No se pudo guardar el reporte.",
+                    )
+                }
+            }
+        }
+    }
+
+    fun saveDraft() {
+        val state = _uiState.value
+        val type = state.selectedType
+        if (type == null) {
+            _uiState.update { it.copy(errorMessage = "Selecciona un tipo de incidente.") }
+            return
+        }
+        val location = state.location
+        if (location == null) {
+            _uiState.update { it.copy(errorMessage = "No hay ubicacion disponible.") }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSavingDraft = true, errorMessage = null, savedReportId = null) }
+            runCatching {
+                saveIncidentReportDraft(
+                    SaveIncidentReportDraftInput(
+                        type = type,
+                        severity = state.severity,
+                        location = location,
+                        locationPrecision = state.locationPrecision,
+                        description = state.description,
+                        isAnonymous = state.isAnonymous,
+                    ),
+                )
+            }.onSuccess { report ->
+                _uiState.update {
+                    ReportIncidentUiState(
+                        isAnonymous = it.isAnonymous,
+                        location = it.location,
+                        locationStatus = it.locationStatus,
+                        locationPrecision = it.locationPrecision,
+                        isLocationConfirmed = it.isLocationConfirmed,
+                        savedReportId = report.id,
+                        savedReportMessage = "Borrador guardado localmente.",
+                    )
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        isSavingDraft = false,
+                        errorMessage = error.message ?: "No se pudo guardar el borrador.",
                     )
                 }
             }
@@ -166,8 +219,11 @@ data class ReportIncidentUiState(
     val description: String = "",
     val isAnonymous: Boolean = true,
     val isSubmitting: Boolean = false,
+    val isSavingDraft: Boolean = false,
     val errorMessage: String? = null,
     val savedReportId: String? = null,
+    val savedReportMessage: String? = null,
 ) {
-    val canSubmit: Boolean = selectedType != null && location != null && isLocationConfirmed && !isSubmitting
+    val canSubmit: Boolean = selectedType != null && location != null && isLocationConfirmed && !isSubmitting && !isSavingDraft
+    val canSaveDraft: Boolean = selectedType != null && location != null && !isSubmitting && !isSavingDraft
 }
