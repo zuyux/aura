@@ -181,37 +181,38 @@ Muted Text
 
 ### 9. Feature: Reportar incidente
 
-* [ ] Create `ReportIncidentScreen`
+* [X] Create `ReportIncidentScreen`
 
-* [ ] Create `ReportIncidentViewModel`
+* [X] Create `ReportIncidentViewModel`
 
-* [ ] Add incident category selection:
+* [X] Add incident category selection:
 
-  * [ ] Robo
-  * [ ] Persona sospechosa
-  * [ ] Violencia
-  * [ ] Acoso
-  * [ ] Accidente
-  * [ ] Zona peligrosa
-  * [ ] Otro
+  * [X] Robo
+  * [X] Intento de robo
+  * [X] Persona sospechosa
+  * [X] Violencia
+  * [X] Acoso
+  * [X] Accidente
+  * [X] Zona peligrosa
+  * [X] Otro
 
-* [ ] Add severity selection
+* [X] Add severity selection
 
-* [ ] Add location confirmation
+* [X] Add location confirmation
 
-* [ ] Add approximate location option
+* [X] Add approximate location option
 
-* [ ] Add description field
+* [X] Add description field
 
-* [ ] Add anonymous mode toggle
+* [X] Add anonymous mode toggle
 
-* [ ] Add submit button
+* [X] Add submit button
 
 * [ ] Save report locally as `DRAFT`
 
-* [ ] Submit report as `PENDING_SYNC`
+* [X] Submit report as `PENDING_SYNC`
 
-* [ ] Add validation rules
+* [X] Add validation rules
 
 ---
 
@@ -293,14 +294,14 @@ Muted Text
 
 ### 13. Location module
 
-* [ ] Create `LocationProvider`
+* [X] Create `LocationProvider`
 * [ ] Create `LocationPermissionManager`
-* [ ] Create `LocationPrivacyService`
+* [X] Create `LocationPrivacyService`
 * [ ] Create `GeohashService`
-* [ ] Request precise or approximate location contextually
-* [ ] Convert exact location to approximate zone for public reports
+* [X] Request precise or approximate location contextually
+* [X] Convert exact location to approximate zone for public reports
 * [ ] Store last known location
-* [ ] Handle location unavailable state
+* [X] Handle location unavailable state
 
 ---
 
@@ -366,7 +367,7 @@ POST /safety-sessions/{id}/updates
 * [ ] Avoid exposing exact public location
 * [ ] Add delete local evidence option
 * [ ] Add privacy disclaimer screen
-* [ ] Add permission rationale dialogs
+* [X] Add permission rationale dialogs
 
 ---
 
