@@ -97,68 +97,68 @@ Muted Text
 
 ### 5. Domain models
 
-* [ ] Create `UserProfile`
-* [ ] Create `DeviceIdentity`
-* [ ] Create `IncidentReport`
-* [ ] Create `IncidentEvidence`
-* [ ] Create `Alert`
-* [ ] Create `ReportVerification`
-* [ ] Create `GuardianContact`
-* [ ] Create `SafetySession`
-* [ ] Create `SafetySessionUpdate`
-* [ ] Create `SyncQueueItem`
+* [X] Create `UserProfile`
+* [X] Create `DeviceIdentity`
+* [X] Create `IncidentReport`
+* [X] Create `IncidentEvidence`
+* [X] Create `Alert`
+* [X] Create `ReportVerification`
+* [X] Create `GuardianContact`
+* [X] Create `SafetySession`
+* [X] Create `SafetySessionUpdate`
+* [X] Create `SyncQueueItem`
 
 ---
 
 ### 6. Enums
 
-* [ ] Create `IncidentType`
-* [ ] Create `SeverityLevel`
-* [ ] Create `ReportStatus`
-* [ ] Create `LocationPrecision`
-* [ ] Create `ReportVisibility`
-* [ ] Create `EvidenceType`
-* [ ] Create `EvidenceVisibility`
-* [ ] Create `VerificationAction`
-* [ ] Create `AlertStatus`
-* [ ] Create `SafetySessionStatus`
-* [ ] Create `SyncOperation`
-* [ ] Create `SyncPriority`
-* [ ] Create `SyncStatus`
+* [X] Create `IncidentType`
+* [X] Create `SeverityLevel`
+* [X] Create `ReportStatus`
+* [X] Create `LocationPrecision`
+* [X] Create `ReportVisibility`
+* [X] Create `EvidenceType`
+* [X] Create `EvidenceVisibility`
+* [X] Create `VerificationAction`
+* [X] Create `AlertStatus`
+* [X] Create `SafetySessionStatus`
+* [X] Create `SyncOperation`
+* [X] Create `SyncPriority`
+* [X] Create `SyncStatus`
 
 ---
 
 ### 7. Local database
 
-* [ ] Add Room database: `AuraDatabase`
+* [X] Add Room database: `AuraDatabase`
 
 * [ ] Create entities:
 
-  * [ ] `UserProfileEntity`
-  * [ ] `DeviceIdentityEntity`
-  * [ ] `IncidentReportEntity`
-  * [ ] `IncidentEvidenceEntity`
-  * [ ] `AlertEntity`
-  * [ ] `ReportVerificationEntity`
-  * [ ] `GuardianContactEntity`
-  * [ ] `SafetySessionEntity`
-  * [ ] `SafetySessionUpdateEntity`
-  * [ ] `SyncQueueEntity`
+  * [X] `UserProfileEntity`
+  * [X] `DeviceIdentityEntity`
+  * [X] `IncidentReportEntity`
+  * [X] `IncidentEvidenceEntity`
+  * [X] `AlertEntity`
+  * [X] `ReportVerificationEntity`
+  * [X] `GuardianContactEntity`
+  * [X] `SafetySessionEntity`
+  * [X] `SafetySessionUpdateEntity`
+  * [X] `SyncQueueEntity`
 
 * [ ] Create DAOs:
 
-  * [ ] `IncidentReportDao`
-  * [ ] `IncidentEvidenceDao`
-  * [ ] `AlertDao`
-  * [ ] `ReportVerificationDao`
-  * [ ] `GuardianContactDao`
-  * [ ] `SafetySessionDao`
-  * [ ] `SyncQueueDao`
+  * [X] `IncidentReportDao`
+  * [X] `IncidentEvidenceDao`
+  * [X] `AlertDao`
+  * [X] `ReportVerificationDao`
+  * [X] `GuardianContactDao`
+  * [X] `SafetySessionDao`
+  * [X] `SyncQueueDao`
 
 * [ ] Add mappers:
 
-  * [ ] Entity → Domain
-  * [ ] Domain → Entity
+  * [X] Entity → Domain
+  * [X] Domain → Entity
   * [ ] Domain → DTO
   * [ ] DTO → Domain
 

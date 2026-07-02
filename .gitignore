@@ -1,14 +1,45 @@
+# Gradle
 .gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin
 .kotlin/
+
+# Local Android SDK configuration
+local.properties
+
+# Android Studio / IntelliJ
 .idea/
 *.iml
-build/
-local.properties
+*.ipr
+*.iws
+out/
+
+# Android generated files
 captures/
+.externalNativeBuild/
 .cxx/
 *.apk
-*.aab
 *.ap_
-*.keystore
+*.aab
+*.dex
+*.class
+
+# Signing and secrets
 *.jks
+*.keystore
+*.p12
+*.pem
+keystore.properties
+secrets.properties
+
+# Native crash symbols and release outputs
+*.hprof
+*.so.dbg
 app/release/
+
+# OS files
+.DS_Store
+Thumbs.db
