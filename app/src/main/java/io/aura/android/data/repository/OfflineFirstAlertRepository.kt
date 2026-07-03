@@ -1,6 +1,7 @@
 package io.aura.android.data.repository
 
 import io.aura.android.data.local.dao.AlertDao
+import io.aura.android.data.local.dao.ReportVerificationDao
 import io.aura.android.data.mapper.toDomain
 import io.aura.android.data.mapper.toEntity
 import io.aura.android.domain.model.Alert
@@ -8,17 +9,46 @@ import io.aura.android.domain.model.AlertStatus
 import io.aura.android.domain.model.AuraLocation
 import io.aura.android.domain.model.IncidentType
 import io.aura.android.domain.model.LocationPrecision
+import io.aura.android.domain.model.ReportVerification
 import io.aura.android.domain.model.SeverityLevel
+import io.aura.android.domain.model.VerificationAction
 import io.aura.android.domain.repository.AlertRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 import javax.inject.Inject
 
 class OfflineFirstAlertRepository @Inject constructor(
     private val alertDao: AlertDao,
+    private val reportVerificationDao: ReportVerificationDao,
 ) : AlertRepository {
     override fun observeNearbyAlerts(): Flow<List<Alert>> =
         alertDao.observeAlerts().map { alerts -> alerts.map { it.toDomain() } }
+
+    override fun observeAlert(alertId: String): Flow<Alert?> =
+        alertDao.observeAlert(alertId).map { alert -> alert?.toDomain() }
+
+    override suspend fun recordVerification(alertId: String, action: VerificationAction) {
+        val alert = alertDao.getAlert(alertId) ?: return
+        val verificationTargetId = alert.reportId ?: alert.id
+
+        reportVerificationDao.upsert(
+            ReportVerification(
+                id = UUID.randomUUID().toString(),
+                reportId = verificationTargetId,
+                action = action,
+                deviceId = null,
+                createdAtMillis = System.currentTimeMillis(),
+            ).toEntity(),
+        )
+
+        when (action) {
+            VerificationAction.ALSO_SEEN -> alertDao.updateStatus(alertId, AlertStatus.COMMUNITY_CONFIRMED)
+            VerificationAction.SEEMS_FALSE -> alertDao.updateStatus(alertId, AlertStatus.DISMISSED)
+            VerificationAction.RESOLVED -> alertDao.updateStatus(alertId, AlertStatus.RESOLVED)
+            VerificationAction.HIDE_ALERT -> alertDao.updateStatus(alertId, AlertStatus.DISMISSED)
+        }
+    }
 
     override suspend fun seedDemoAlertsIfEmpty() {
         if (alertDao.countAlerts() > 0) return

@@ -237,7 +237,7 @@ Muted Text
 
 * [X] Create `AlertsListScreen`
 
-* [ ] Create `AlertDetailScreen`
+* [X] Create `AlertDetailScreen`
 
 * [ ] Create `AlertsViewModel`
 
@@ -263,13 +263,13 @@ Muted Text
 
 * [ ] Add map pins or zones
 
-* [ ] Add alert detail page
+* [X] Add alert detail page
 
 * [ ] Add verification actions:
 
-  * [ ] “Yo también lo vi”
-  * [ ] “Parece falso”
-  * [ ] “Está resuelto”
+  * [X] “Yo también lo vi”
+  * [X] “Parece falso”
+  * [X] “Está resuelto”
 
 ---
 

@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.Flag
-import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
@@ -26,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,12 +33,10 @@ import io.aura.android.core.ui.components.AuraOfflineBanner
 import io.aura.android.core.ui.components.AuraSectionHeader
 import io.aura.android.core.ui.components.StatusBadge
 import io.aura.android.domain.model.Alert
-import io.aura.android.domain.model.AlertStatus
-import io.aura.android.domain.model.IncidentType
-import io.aura.android.domain.model.SeverityLevel
 
 @Composable
 fun AlertsListScreen(
+    onAlertClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AlertsViewModel = hiltViewModel(),
 ) {
@@ -72,7 +66,10 @@ fun AlertsListScreen(
                     icon = Icons.Outlined.Shield,
                 )
                 else -> uiState.alerts.forEach { alert ->
-                    AlertListItem(alert = alert)
+                    AlertListItem(
+                        alert = alert,
+                        onClick = { onAlertClick(alert.id) },
+                    )
                 }
             }
         }
@@ -81,8 +78,13 @@ fun AlertsListScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun AlertListItem(alert: Alert, modifier: Modifier = Modifier) {
+private fun AlertListItem(
+    alert: Alert,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Card(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -100,7 +102,7 @@ private fun AlertListItem(alert: Alert, modifier: Modifier = Modifier) {
                 Icon(
                     imageVector = alert.type.icon(),
                     contentDescription = null,
-                    tint = alert.severity.color(),
+                    tint = alert.severity.alertColor(),
                 )
                 Column(
                     modifier = Modifier.weight(1f),
@@ -138,65 +140,5 @@ private fun AlertListItem(alert: Alert, modifier: Modifier = Modifier) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun SeverityLevel.color() = when (this) {
-    SeverityLevel.LOW -> MaterialTheme.colorScheme.tertiary
-    SeverityLevel.MEDIUM -> MaterialTheme.colorScheme.primary
-    SeverityLevel.HIGH -> MaterialTheme.colorScheme.error
-}
-
-private fun IncidentType.label(): String = when (this) {
-    IncidentType.THEFT -> "Robo"
-    IncidentType.ATTEMPTED_THEFT -> "Intento de robo"
-    IncidentType.SUSPICIOUS_PERSON -> "Persona sospechosa"
-    IncidentType.VIOLENCE -> "Violencia"
-    IncidentType.HARASSMENT -> "Acoso"
-    IncidentType.ACCIDENT -> "Accidente"
-    IncidentType.DANGEROUS_AREA -> "Zona peligrosa"
-    IncidentType.OTHER -> "Otro incidente"
-}
-
-private fun IncidentType.icon(): ImageVector = when (this) {
-    IncidentType.THEFT,
-    IncidentType.ATTEMPTED_THEFT,
-    IncidentType.SUSPICIOUS_PERSON,
-    IncidentType.VIOLENCE,
-    IncidentType.HARASSMENT -> Icons.Outlined.Report
-    IncidentType.ACCIDENT -> Icons.Outlined.ErrorOutline
-    IncidentType.DANGEROUS_AREA -> Icons.Outlined.Flag
-    IncidentType.OTHER -> Icons.Outlined.Shield
-}
-
-private fun AlertStatus.label(): String = when (this) {
-    AlertStatus.UNVERIFIED -> "No verificado"
-    AlertStatus.COMMUNITY_CONFIRMED -> "Comunidad"
-    AlertStatus.AUTHORITY_CONFIRMED -> "Autoridad"
-    AlertStatus.RESOLVED -> "Resuelto"
-    AlertStatus.DISMISSED -> "Descartado"
-}
-
-private fun SeverityLevel.label(): String = when (this) {
-    SeverityLevel.LOW -> "Baja"
-    SeverityLevel.MEDIUM -> "Media"
-    SeverityLevel.HIGH -> "Alta"
-}
-
-private fun Alert.distanceLabel(): String = when (val distance = distanceMeters) {
-    null -> "Distancia no disponible"
-    in 0..999 -> "${distance} m"
-    else -> "${distance / 1000.0} km"
-}
-
-private fun Alert.relativeTimeLabel(): String {
-    val elapsedMillis = (System.currentTimeMillis() - reportedAtMillis).coerceAtLeast(0L)
-    val elapsedMinutes = elapsedMillis / 60_000L
-    return when {
-        elapsedMinutes < 1 -> "Ahora"
-        elapsedMinutes < 60 -> "Hace ${elapsedMinutes} min"
-        elapsedMinutes < 24 * 60 -> "Hace ${elapsedMinutes / 60} h"
-        else -> "Hace ${elapsedMinutes / (24 * 60)} d"
     }
 }

@@ -17,10 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import io.aura.android.feature.alerts.AlertDetailScreen
 import io.aura.android.feature.alerts.AlertsListScreen
 import io.aura.android.feature.home.HomeScreen
 import io.aura.android.feature.home.ProfilePlaceholderScreen
@@ -47,6 +50,7 @@ fun AuraAppNavHost() {
     val currentRoute = backStackEntry?.destination?.route ?: AuraRoute.Home.route
     val currentTopLevelRoute = when (currentRoute) {
         AuraRoute.LEGACY_HOME_ROUTE -> AuraRoute.Home.route
+        AuraRoute.AlertDetail.route -> AuraRoute.Alerts.route
         else -> currentRoute
     }
 
@@ -98,7 +102,17 @@ fun AuraAppNavHost() {
                 ReportIncidentScreen()
             }
             composable(AuraRoute.Alerts.route) {
-                AlertsListScreen()
+                AlertsListScreen(
+                    onAlertClick = { alertId ->
+                        navController.navigate(AuraRoute.alertDetailRoute(alertId))
+                    },
+                )
+            }
+            composable(
+                route = AuraRoute.AlertDetail.route,
+                arguments = listOf(navArgument(AuraRoute.ALERT_ID_ARG) { type = NavType.StringType }),
+            ) {
+                AlertDetailScreen(onBackClick = { navController.popBackStack() })
             }
             composable(AuraRoute.Guardian.route) {
                 GuardianScreen()
