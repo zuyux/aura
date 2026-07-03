@@ -202,100 +202,7 @@ El MVP será aceptado si:
 * La aplicación se ejecuta en los dispositivos Android compatibles.
 * El código fuente está documentado y se puede compilar.
 
-## 9. Cronograma
-
-Los proveedores deben proponer un cronograma para el MVP.
-
-Fases sugeridas:
-
-### Fase 1: Descubrimiento y Definición del Producto
-
-Duración: 1–2 semanas
-
-* Validación de requisitos.
-* Flujos de usuario.
-* Arquitectura técnica.
-* Modelo de datos.
-* Wireframes de la interfaz de usuario (UI).
-
-### Fase 2: Desarrollo del MVP
-
-Duración: 6–10 semanas
-
-* Desarrollo de la aplicación Android.
-* Configuración del backend.
-* Base de datos local.
-* Cola de sincronización.
-* Módulo central de reportes.
-* Alertas.
-* Red Guardián.
-
-### Fase 3: Pruebas y Piloto
-
-Duración: 2–4 semanas
-
-* Control de calidad (QA) interno.
-* Piloto comunitario.
-* Corrección de errores (bugs).
-* Revisión de privacidad.
-* Preparación para el despliegue.
-
-### Fase 4: Lanzamiento y Soporte
-
-Duración: continuo
-
-* Monitoreo.
-* Soporte.
-* Mantenimiento.
-* Iteración.
-
-## 10. Requisitos de la Propuesta
-
-Cada propuesta debe incluir:
-
-* Perfil de la empresa/equipo.
-* Experiencia relevante.
-* Arquitectura técnica propuesta.
-* Metodología de desarrollo.
-* Cronograma.
-* Presupuesto.
-* Plan de mantenimiento.
-* Enfoque de privacidad y seguridad.
-* Política de código abierto (open-source).
-* Riesgos y suposiciones.
-* Términos de soporte post-lanzamiento.
-
-## 11. Criterios de Evaluación
-
-Las propuestas se evaluarán con base en:
-
-| Criterio | Peso |
-| --- | --- |
-| Capacidad técnica | 25% |
-| Enfoque de privacidad y seguridad | 20% |
-| Comprensión del producto | 20% |
-| Costo y cronograma | 15% |
-| Experiencia relevante | 10% |
-| Mantenibilidad y documentación | 10% |
-
-## 12. Presupuesto
-
-Los proveedores deben presentar un presupuesto detallado que incluya:
-
-* Diseño de producto.
-* Desarrollo Android.
-* Desarrollo de backend.
-* Configuración de infraestructura.
-* Pruebas.
-* Despliegue.
-* Documentación.
-* Mantenimiento.
-* Panel administrativo opcional.
-* Generación opcional de reportes mediante Modelos de Lenguaje Grande (LLM).
-
-La Comunidad podrá considerar propuestas de precio fijo o pagos basados en hitos.
-
-## 13. Propiedad y Licenciamiento
+## 9. Propiedad y Licenciamiento
 
 La Comunidad prefiere que el código fuente se entregue bajo una licencia de código abierto, como MIT o Apache 2.0, a menos que se negocie lo contrario.
 
@@ -308,7 +215,7 @@ La Comunidad conservará el acceso a:
 * Activos de diseño.
 * Instrucciones de compilación (build).
 
-## 14. Requisitos Éticos
+## 10. Requisitos Éticos
 
 La solución no debe:
 
@@ -322,7 +229,7 @@ La solución no debe:
 
 La plataforma debe apoyar la prevención, la documentación y la coordinación, no el castigo público ni la vigilancia.
 
-## 15. Características Futuras Opcionales
+## 11. Características Futuras Opcionales
 
 Los proveedores pueden describir opcionalmente el soporte futuro para:
 
