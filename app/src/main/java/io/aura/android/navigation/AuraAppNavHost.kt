@@ -21,10 +21,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.aura.android.feature.home.AlertsPlaceholderScreen
-import io.aura.android.feature.home.GuardianPlaceholderScreen
+import io.aura.android.feature.alerts.AlertsListScreen
 import io.aura.android.feature.home.HomeScreen
 import io.aura.android.feature.home.ProfilePlaceholderScreen
+import io.aura.android.feature.guardian.GuardianScreen
 import io.aura.android.feature.report.ReportIncidentScreen
 
 private data class BottomDestination(
@@ -98,10 +98,10 @@ fun AuraAppNavHost() {
                 ReportIncidentScreen()
             }
             composable(AuraRoute.Alerts.route) {
-                AlertsPlaceholderScreen()
+                AlertsListScreen()
             }
             composable(AuraRoute.Guardian.route) {
-                GuardianPlaceholderScreen()
+                GuardianScreen()
             }
             composable(AuraRoute.Profile.route) {
                 ProfilePlaceholderScreen()

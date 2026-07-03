@@ -11,6 +11,9 @@ interface AlertDao {
     @Query("SELECT * FROM alerts ORDER BY reportedAtMillis DESC")
     fun observeAlerts(): Flow<List<AlertEntity>>
 
+    @Query("SELECT COUNT(*) FROM alerts")
+    suspend fun countAlerts(): Int
+
     @Upsert
     suspend fun upsertAll(alerts: List<AlertEntity>)
 }

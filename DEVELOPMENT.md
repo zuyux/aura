@@ -235,7 +235,7 @@ Muted Text
 
 * [ ] Create `AlertsMapScreen`
 
-* [ ] Create `AlertsListScreen`
+* [X] Create `AlertsListScreen`
 
 * [ ] Create `AlertDetailScreen`
 

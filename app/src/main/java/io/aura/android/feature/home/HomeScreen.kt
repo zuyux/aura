@@ -75,8 +75,8 @@ fun HomeScreen(
                     )
                 }
                 Text(
-                    text = "AURA",
-                    style = MaterialTheme.typography.headlineMedium,
+                    text = "A U R A",
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                 )
@@ -154,7 +154,7 @@ private fun EmergencySosCard(
             .clip(RoundedCornerShape(20.dp))
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFF1744), Color(0xFFD50032)),
+                    colors = listOf(Color(0xFFFF4B4D), AuraRed),
                 ),
             )
             .clickable(onClick = onClick)
