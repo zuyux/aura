@@ -60,10 +60,10 @@ worker/
   * [X] Alert card
   * [X] Category card
   * [X] Status badge
-  * [ ] Section header
-  * [ ] Loading state
-  * [ ] Empty state
-  * [ ] Offline banner
+  * [X] Section header
+  * [X] Loading state
+  * [X] Empty state
+  * [X] Offline banner
 
 ---
 

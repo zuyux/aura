@@ -5,7 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddAlert
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Map
-import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -22,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import io.aura.android.feature.home.AlertsPlaceholderScreen
 import io.aura.android.feature.home.GuardianPlaceholderScreen
 import io.aura.android.feature.home.HomeScreen
+import io.aura.android.feature.home.ProfilePlaceholderScreen
 import io.aura.android.feature.report.ReportIncidentScreen
 
 private data class BottomDestination(
@@ -32,9 +35,9 @@ private data class BottomDestination(
 
 private val bottomDestinations = listOf(
     BottomDestination(AuraRoute.Home, "Inicio", Icons.Outlined.Home),
-    BottomDestination(AuraRoute.Report, "Reportar", Icons.Outlined.AddAlert),
     BottomDestination(AuraRoute.Alerts, "Alertas", Icons.Outlined.Map),
-    BottomDestination(AuraRoute.Guardian, "Guardián", Icons.Outlined.Shield),
+    BottomDestination(AuraRoute.Guardian, "SOS", Icons.Outlined.AddAlert),
+    BottomDestination(AuraRoute.Profile, "Perfil", Icons.Outlined.Person),
 )
 
 @Composable
@@ -42,18 +45,22 @@ fun AuraAppNavHost() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route ?: AuraRoute.Home.route
+    val currentTopLevelRoute = when (currentRoute) {
+        AuraRoute.LEGACY_HOME_ROUTE -> AuraRoute.Home.route
+        else -> currentRoute
+    }
 
     Scaffold(
         bottomBar = {
             NavigationBar {
                 bottomDestinations.forEach { destination ->
                     NavigationBarItem(
-                        selected = currentRoute == destination.route.route,
+                        selected = currentTopLevelRoute == destination.route.route,
                         onClick = {
-                            navController.navigate(destination.route.route) {
-                                popUpTo(AuraRoute.Home.route) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
+                            if (destination.route == AuraRoute.Home) {
+                                navController.navigateHome()
+                            } else {
+                                navController.navigateToTopLevelRoute(destination.route.route)
                             }
                         },
                         icon = {
@@ -75,9 +82,16 @@ fun AuraAppNavHost() {
         ) {
             composable(AuraRoute.Home.route) {
                 HomeScreen(
-                    onReportClick = { navController.navigate(AuraRoute.Report.route) },
-                    onAlertsClick = { navController.navigate(AuraRoute.Alerts.route) },
-                    onGuardianClick = { navController.navigate(AuraRoute.Guardian.route) },
+                    onReportClick = { navController.navigateToTopLevelRoute(AuraRoute.Report.route) },
+                    onAlertsClick = { navController.navigateToTopLevelRoute(AuraRoute.Alerts.route) },
+                    onGuardianClick = { navController.navigateToTopLevelRoute(AuraRoute.Guardian.route) },
+                )
+            }
+            composable(AuraRoute.LEGACY_HOME_ROUTE) {
+                HomeScreen(
+                    onReportClick = { navController.navigateToTopLevelRoute(AuraRoute.Report.route) },
+                    onAlertsClick = { navController.navigateToTopLevelRoute(AuraRoute.Alerts.route) },
+                    onGuardianClick = { navController.navigateToTopLevelRoute(AuraRoute.Guardian.route) },
                 )
             }
             composable(AuraRoute.Report.route) {
@@ -89,6 +103,28 @@ fun AuraAppNavHost() {
             composable(AuraRoute.Guardian.route) {
                 GuardianPlaceholderScreen()
             }
+            composable(AuraRoute.Profile.route) {
+                ProfilePlaceholderScreen()
+            }
         }
+    }
+}
+
+private fun NavController.navigateHome() {
+    navigate(AuraRoute.Home.route) {
+        popUpTo(graph.findStartDestination().id) {
+            inclusive = true
+        }
+        launchSingleTop = true
+    }
+}
+
+private fun NavController.navigateToTopLevelRoute(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
     }
 }
