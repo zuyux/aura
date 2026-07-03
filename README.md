@@ -12,7 +12,7 @@ El MVP 0.1 se enfoca en tres flujos principales:
 2. **Ver alertas cercanas**
 3. **Activar Red Guardián / SOS**
 
-AURA busca crear una capa colaborativa de prevención ciudadana sin convertir a los usuarios en vigilantes, evitando exposición innecesaria de datos personales, rumores o acusaciones públicas sin verificación.
+AURA propone una capa colaborativa de seguridad ciudadana que permita reportar incidentes, alertar a la comunidad y coordinar respuestas locales.
 
 ---
 
