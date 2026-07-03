@@ -642,19 +642,9 @@ LICENSE
 
 AURA es una herramienta comunitaria de alerta, coordinación y documentación. No reemplaza servicios oficiales de emergencia, autoridades policiales, serenazgo, bomberos, atención médica ni canales formales de denuncia.
 
-En una emergencia real, el usuario debe contactar inmediatamente a las autoridades o servicios de emergencia correspondientes de su localidad.
-
----
-
-## Nombre
-
-**AURA** representa una capa invisible de protección alrededor de una persona o comunidad: una red de cuidado, prevención y alerta temprana.
-
-```txt
-AURA = Alerta + Ubicación + Reporte + Asistencia
-```
-
+```json
 "No juzguéis según las apariencias, sino juzgad con justo juicio.”
-— Juan 7:24"
+— Juan 7:24
+```
 
 ---
