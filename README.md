@@ -654,4 +654,7 @@ En una emergencia real, el usuario debe contactar inmediatamente a las autoridad
 AURA = Alerta + Ubicación + Reporte + Asistencia
 ```
 
+"No juzguéis según las apariencias, sino juzgad con justo juicio.”
+— Juan 7:24"
+
 ---
