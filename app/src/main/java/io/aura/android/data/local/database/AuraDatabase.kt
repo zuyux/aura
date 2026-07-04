@@ -36,7 +36,7 @@ import io.aura.android.data.local.entity.UserProfileEntity
         SafetySessionUpdateEntity::class,
         SyncQueueEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(AuraTypeConverters::class)

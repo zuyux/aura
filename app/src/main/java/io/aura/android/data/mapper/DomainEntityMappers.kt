@@ -144,6 +144,7 @@ fun GuardianContactEntity.toDomain() = GuardianContact(
     id = id,
     displayName = displayName,
     phoneNumber = phoneNumber,
+    photoUri = photoUri,
     isPrimary = isPrimary,
     createdAtMillis = createdAtMillis,
 )
@@ -152,6 +153,7 @@ fun GuardianContact.toEntity() = GuardianContactEntity(
     id = id,
     displayName = displayName,
     phoneNumber = phoneNumber,
+    photoUri = photoUri,
     isPrimary = isPrimary,
     createdAtMillis = createdAtMillis,
 )

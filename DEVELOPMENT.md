@@ -275,19 +275,17 @@ Muted Text
 
 ### 12. Feature: Red Guardián
 
-* [ ] Create `GuardianHomeScreen`
-* [ ] Create `GuardianContactsScreen`
-* [ ] Create `ActiveSafetySessionScreen`
-* [ ] Create `GuardianViewModel`
-* [ ] Add trusted contacts locally
-* [ ] Start safety session
-* [ ] Save `SafetySession`
+* [X] Create `GuardianScreen`
+* [X] Create `GuardianViewModel`
+* [X] Add trusted contacts locally
+* [X] Start safety session
+* [X] Save `SafetySession`
 * [ ] Track location during active session
-* [ ] Show “Compartiendo ubicación”
-* [ ] Add “Estoy bien” button
-* [ ] Add “Llamar” button
-* [ ] Add “Finalizar sesión”
-* [ ] Add SMS fallback draft
+* [X] Show “Compartiendo ubicación”
+* [X] Add “Estoy bien” button
+* [X] Add “Llamar” button
+* [X] Add “Finalizar sesión”
+* [X] Add SMS fallback draft
 * [ ] Stop location updates when session ends
 
 ---
@@ -373,8 +371,10 @@ POST /safety-sessions/{id}/updates
 
 ### 17. Profile and settings
 
-* [ ] Create `ProfileScreen`
-* [ ] Add local alias
+* [X] Create `ProfileScreen`
+* [X] Add first-run phone onboarding
+* [X] Add SMS code autofill permission flow
+* [X] Add local display name
 * [ ] Add anonymous mode default toggle
 * [ ] Add offline mode setting
 * [ ] Add notification preferences

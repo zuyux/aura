@@ -2,6 +2,8 @@ package io.aura.android.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,7 +31,7 @@ object DatabaseModule {
             context = context,
             klass = AuraDatabase::class.java,
             name = "aura.db",
-        ).build()
+        ).addMigrations(MIGRATION_1_2).build()
 
     @Provides fun provideUserProfileDao(database: AuraDatabase): UserProfileDao = database.userProfileDao()
     @Provides fun provideDeviceIdentityDao(database: AuraDatabase): DeviceIdentityDao = database.deviceIdentityDao()
@@ -40,4 +42,10 @@ object DatabaseModule {
     @Provides fun provideGuardianContactDao(database: AuraDatabase): GuardianContactDao = database.guardianContactDao()
     @Provides fun provideSafetySessionDao(database: AuraDatabase): SafetySessionDao = database.safetySessionDao()
     @Provides fun provideSyncQueueDao(database: AuraDatabase): SyncQueueDao = database.syncQueueDao()
+}
+
+private val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE guardian_contacts ADD COLUMN photoUri TEXT")
+    }
 }
