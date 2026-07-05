@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
@@ -46,6 +45,7 @@ import io.aura.android.core.ui.components.AuraEmptyState
 import io.aura.android.core.ui.components.AuraSectionHeader
 import io.aura.android.core.ui.theme.AuraDarkBlue
 import io.aura.android.core.ui.theme.AuraRed
+import io.aura.android.core.ui.theme.AuraShapes
 
 @Composable
 fun HomeScreen(
@@ -150,50 +150,51 @@ private fun EmergencySosCard(
 ) {
     Box(
         modifier = modifier
-            .shadow(10.dp, RoundedCornerShape(20.dp), clip = false)
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFF4B4D), AuraRed),
-                ),
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 24.dp),
+            .fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Shield,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(40.dp),
+        Box(
+            modifier = Modifier
+                .size(220.dp)
+                .shadow(10.dp, CircleShape, clip = false)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFFFF4B4D), AuraRed),
+                    ),
                 )
+                .clickable(onClick = onClick)
+                .padding(18.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "SOS",
+                        style = MaterialTheme.typography.displaySmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
                 Text(
-                    text = "SOS",
-                    style = MaterialTheme.typography.displaySmall,
+                    text = "Emergencia",
+                    style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                 )
+                Text(
+                    text = "Toca aqui para pedir ayuda",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                )
             }
-            Text(
-                text = "Emergencia",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = "Toca aqui para pedir ayuda",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-            )
         }
     }
 }
@@ -209,7 +210,7 @@ private fun HomeActionRow(
     Card(
         modifier = modifier.fillMaxWidth(),
         onClick = onClick,
-        shape = RoundedCornerShape(14.dp),
+        shape = AuraShapes.card,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
@@ -221,7 +222,7 @@ private fun HomeActionRow(
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(AuraShapes.control)
                     .background(AuraDarkBlue),
                 contentAlignment = Alignment.Center,
             ) {

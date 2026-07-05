@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.aura.android.domain.location.LocationProvider
 import io.aura.android.domain.model.AuraLocation
+import io.aura.android.domain.model.EvidenceType
 import io.aura.android.domain.model.IncidentType
 import io.aura.android.domain.model.LocationPrecision
 import io.aura.android.domain.model.SeverityLevel
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -70,6 +72,36 @@ class ReportIncidentViewModel @Inject constructor(
 
     fun onAnonymousChanged(isAnonymous: Boolean) {
         _uiState.update { it.copy(isAnonymous = isAnonymous, savedReportId = null) }
+    }
+
+    fun onEvidencePlaceholderAdded(type: EvidenceType) {
+        _uiState.update { state ->
+            if (state.evidenceAttachments.size >= MAX_EVIDENCE_ATTACHMENTS) {
+                state.copy(errorMessage = "Puedes preparar hasta $MAX_EVIDENCE_ATTACHMENTS evidencias por reporte.")
+            } else {
+                val nextNumber = state.evidenceAttachments.count { it.type == type } + 1
+                val attachment = EvidenceAttachmentDraft(
+                    id = UUID.randomUUID().toString(),
+                    type = type,
+                    label = "${type.displayLabel()} $nextNumber",
+                )
+                state.copy(
+                    evidenceAttachments = state.evidenceAttachments + attachment,
+                    errorMessage = null,
+                    savedReportId = null,
+                )
+            }
+        }
+    }
+
+    fun onEvidencePlaceholderRemoved(id: String) {
+        _uiState.update {
+            it.copy(
+                evidenceAttachments = it.evidenceAttachments.filterNot { attachment -> attachment.id == id },
+                errorMessage = null,
+                savedReportId = null,
+            )
+        }
     }
 
     fun onLocationPrecisionSelected(precision: LocationPrecision) {
@@ -218,6 +250,7 @@ data class ReportIncidentUiState(
     val isLoadingLocation: Boolean = false,
     val description: String = "",
     val isAnonymous: Boolean = true,
+    val evidenceAttachments: List<EvidenceAttachmentDraft> = emptyList(),
     val isSubmitting: Boolean = false,
     val isSavingDraft: Boolean = false,
     val errorMessage: String? = null,
@@ -226,4 +259,18 @@ data class ReportIncidentUiState(
 ) {
     val canSubmit: Boolean = selectedType != null && location != null && isLocationConfirmed && !isSubmitting && !isSavingDraft
     val canSaveDraft: Boolean = selectedType != null && location != null && !isSubmitting && !isSavingDraft
+}
+
+data class EvidenceAttachmentDraft(
+    val id: String,
+    val type: EvidenceType,
+    val label: String,
+)
+
+private const val MAX_EVIDENCE_ATTACHMENTS = 6
+
+private fun EvidenceType.displayLabel(): String = when (this) {
+    EvidenceType.PHOTO -> "Foto"
+    EvidenceType.VIDEO -> "Video"
+    EvidenceType.AUDIO -> "Audio"
 }

@@ -454,7 +454,7 @@ Se deben bloquear o revisar reportes que incluyan:
 Paleta inicial:
 
 ```txt
-Azul principal: #003B8E
+Azul principal: #0047D9
 Azul oscuro:    #001F4E
 Rojo alerta:    #E41D2D
 Verde seguro:   #16A34A

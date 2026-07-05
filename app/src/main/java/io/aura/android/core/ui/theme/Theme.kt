@@ -30,6 +30,7 @@ fun AuraTheme(
     MaterialTheme(
         colorScheme = LightColors,
         typography = AuraTypography,
+        shapes = AuraMaterialShapes,
         content = content,
     )
 }

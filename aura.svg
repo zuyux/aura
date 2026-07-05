@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <linearGradient
+       id="linearGradient3">
+      <stop
+         style="stop-color:#0036ff;stop-opacity:1;"
+         offset="0"
+         id="stop3" />
+      <stop
+         style="stop-color:#0036ff;stop-opacity:0.8270691;"
+         offset="1"
+         id="stop4" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient1">
+      <stop
+         style="stop-color:#0047d9;stop-opacity:1;"
+         offset="0"
+         id="stop1" />
+      <stop
+         style="stop-color:#00ffff;stop-opacity:1;"
+         offset="1"
+         id="stop2" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#linearGradient1"
+       id="linearGradient2"
+       x1="111.51255"
+       y1="627"
+       x2="1142.4874"
+       y2="627"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.38798227,0,0,0.38798227,12.735093,12.7351)" />
+    <radialGradient
+       xlink:href="#linearGradient3"
+       id="radialGradient4"
+       cx="627"
+       cy="627"
+       fx="627"
+       fy="627"
+       r="392.04135"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.34435141,0,0,0.34435141,40.091653,40.091652)" />
+  </defs>
+  <g
+     id="g1">
+    <circle
+       style="fill:url(#radialGradient4);stroke-width:63.0473;stroke-linecap:square;paint-order:stroke fill markers"
+       id="path1"
+       cx="256"
+       cy="256"
+       r="135" />
+    <circle
+       style="fill:none;stroke:url(#linearGradient2);stroke-width:25.6722;stroke-linecap:square;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="path1-3"
+       cx="256"
+       cy="256"
+       r="187.16389" />
+  </g>
+</svg>

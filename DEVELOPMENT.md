@@ -83,7 +83,7 @@ Muted Text
 
 * [X] Define typography
 * [X] Define spacing scale
-* [ ] Define rounded card style
+* [X] Define rounded card style
 * [ ] Define icon style
 * [ ] Create light theme
 * [ ] Create dark theme later
@@ -449,7 +449,7 @@ POST /safety-sessions/{id}/updates
 * [ ] Add Room entities
 * [ ] Save report locally
 * [ ] Add pending sync queue
-* [ ] Build evidence attachment placeholder
+* [X] Build evidence attachment placeholder
 
 ### Sprint 3: Alerts + Red Guardián
 
