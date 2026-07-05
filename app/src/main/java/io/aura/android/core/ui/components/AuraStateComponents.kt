@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.aura.android.core.ui.theme.AuraSpacing
 
 @Composable
 fun AuraSectionHeader(
@@ -39,7 +40,7 @@ fun AuraSectionHeader(
     ) {
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(AuraSpacing.xxs),
         ) {
             Text(
                 text = title,
@@ -66,9 +67,9 @@ fun AuraLoadingState(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp),
+            .padding(vertical = AuraSpacing.xxl),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(AuraSpacing.md),
     ) {
         CircularProgressIndicator(modifier = Modifier.size(32.dp))
         Text(
@@ -89,9 +90,9 @@ fun AuraEmptyState(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp, horizontal = 12.dp),
+            .padding(vertical = AuraSpacing.xxl, horizontal = AuraSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm),
     ) {
         Box(
             modifier = Modifier
@@ -130,8 +131,8 @@ fun AuraOfflineBanner(
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
         Row(
-            modifier = Modifier.padding(14.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(AuraSpacing.md),
+            horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -139,7 +140,7 @@ fun AuraOfflineBanner(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
             )
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(AuraSpacing.xxs)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,

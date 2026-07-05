@@ -69,7 +69,7 @@ worker/
 
 ### 4. Design system
 
-* [ ] Define color palette:
+* [X] Define color palette:
 
 ```txt
 Primary Blue
@@ -81,8 +81,8 @@ Light Gray
 Muted Text
 ```
 
-* [ ] Define typography
-* [ ] Define spacing scale
+* [X] Define typography
+* [X] Define spacing scale
 * [ ] Define rounded card style
 * [ ] Define icon style
 * [ ] Create light theme

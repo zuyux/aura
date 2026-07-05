@@ -7,7 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import io.aura.android.core.ui.theme.AuraSpacing
 
 @Composable
 fun AuraPrimaryButton(
@@ -20,7 +20,7 @@ fun AuraPrimaryButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+        contentPadding = PaddingValues(horizontal = AuraSpacing.xl, vertical = AuraSpacing.md),
     ) {
         Text(text = text)
     }
@@ -39,7 +39,7 @@ fun AuraEmergencyButton(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 18.dp),
+        contentPadding = PaddingValues(horizontal = AuraSpacing.xxl, vertical = AuraSpacing.lg),
     ) {
         Text(text = text, style = MaterialTheme.typography.titleLarge)
     }

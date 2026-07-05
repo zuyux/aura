@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import io.aura.android.core.ui.theme.AuraSpacing
 
 @Composable
 fun AuraAlertCard(
@@ -33,8 +34,8 @@ fun AuraAlertCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(AuraSpacing.lg),
+            verticalArrangement = Arrangement.spacedBy(AuraSpacing.sm),
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -67,8 +68,8 @@ fun AuraCategoryCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(AuraSpacing.lg),
+            horizontalArrangement = Arrangement.spacedBy(AuraSpacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(imageVector = icon, contentDescription = null)
