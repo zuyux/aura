@@ -30,7 +30,7 @@
 * [X] Add DataStore
 * [X] Add Retrofit or Ktor Client
 * [X] Add Coil for images
-* [ ] Add Maps SDK or MapLibre
+* [X] Add Maps SDK or MapLibre
 * [X] Add Kotlinx Serialization
 * [X] Add testing dependencies: JUnit, MockK, Turbine, Compose UI Test
 
@@ -392,8 +392,8 @@ POST /safety-sessions/{id}/updates
 * [X] Add local notification for active Red Guardián session
 * [X] Add notification for pending sync
 * [X] Add notification for nearby alerts
-* [ ] Add notification channel setup
-* [ ] Prepare Firebase Cloud Messaging integration for later
+* [X] Add notification channel setup
+* [X] Prepare Firebase Cloud Messaging integration for later
 
 ---
 
@@ -405,14 +405,14 @@ POST /safety-sessions/{id}/updates
 * [X] Unit test sync queue logic
 * [X] Room DAO tests
 * [X] Worker tests
-* [ ] Compose UI tests for:
+* [X] Compose UI tests for:
 
-  * [ ] Home
-  * [ ] Report incident flow
-  * [ ] Alerts list
-  * [ ] Alert detail
-  * [ ] Red Guardián session
-  * [ ] Profile settings
+  * [X] Home
+  * [X] Report incident flow
+  * [X] Alerts list
+  * [X] Alert detail
+  * [X] Red Guardián session
+  * [X] Profile settings
 
 ---
 
@@ -429,38 +429,6 @@ POST /safety-sessions/{id}/updates
 * [ ] Add issue templates
 
 ---
-
-## Suggested first sprint
-
-### Sprint 1: Foundation
-
-* [ ] Create Android project
-* [ ] Add Compose + Material 3
-* [ ] Add Navigation
-* [ ] Add Hilt
-* [ ] Add Room
-* [ ] Build Home screen
-* [ ] Build base theme
-* [ ] Add logo assets
-* [ ] Add initial README and architecture docs
-
-### Sprint 2: Local reporting
-
-* [ ] Build report incident UI
-* [ ] Add domain models
-* [ ] Add Room entities
-* [ ] Save report locally
-* [ ] Add pending sync queue
-* [X] Build evidence attachment placeholder
-
-### Sprint 3: Alerts + Red Guardián
-
-* [ ] Build alerts list
-* [ ] Build alert detail
-* [ ] Build Red Guardián screen
-* [ ] Add trusted contacts
-* [ ] Add safety session state
-* [ ] Add offline banner
 
 Best first milestone:
 

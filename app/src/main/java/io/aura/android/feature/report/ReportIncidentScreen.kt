@@ -125,6 +125,44 @@ fun ReportIncidentScreen(
         )
     }
 
+    ReportIncidentContent(
+        uiState = uiState,
+        onTypeSelected = viewModel::onTypeSelected,
+        onSeveritySelected = viewModel::onSeveritySelected,
+        onLocationPrecisionSelected = viewModel::onLocationPrecisionSelected,
+        onUseGpsClick = {
+            if (locationPermissionManager.hasLocationPermission()) {
+                viewModel.loadLocation()
+            } else {
+                showLocationRationale = true
+            }
+        },
+        onConfirmLocation = viewModel::confirmLocation,
+        onDescriptionChanged = viewModel::onDescriptionChanged,
+        onAnonymousChanged = viewModel::onAnonymousChanged,
+        onSaveDraft = viewModel::saveDraft,
+        onSubmit = viewModel::submit,
+        onAddEvidenceClick = onAddEvidenceClick,
+        modifier = modifier,
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+internal fun ReportIncidentContent(
+    uiState: ReportIncidentUiState,
+    onTypeSelected: (IncidentType) -> Unit,
+    onSeveritySelected: (SeverityLevel) -> Unit,
+    onLocationPrecisionSelected: (LocationPrecision) -> Unit,
+    onUseGpsClick: () -> Unit,
+    onConfirmLocation: () -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onAnonymousChanged: (Boolean) -> Unit,
+    onSaveDraft: () -> Unit,
+    onSubmit: () -> Unit,
+    onAddEvidenceClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
@@ -155,7 +193,7 @@ fun ReportIncidentScreen(
                     incidentTypes.forEach { type ->
                         FilterChip(
                             selected = uiState.selectedType == type.first,
-                            onClick = { viewModel.onTypeSelected(type.first) },
+                            onClick = { onTypeSelected(type.first) },
                             label = { Text(type.second) },
                         )
                     }
@@ -168,7 +206,7 @@ fun ReportIncidentScreen(
                     severityOptions.forEachIndexed { index, option ->
                         SegmentedButton(
                             selected = uiState.severity == option.first,
-                            onClick = { viewModel.onSeveritySelected(option.first) },
+                            onClick = { onSeveritySelected(option.first) },
                             shape = SegmentedButtonDefaults.itemShape(
                                 index = index,
                                 count = severityOptions.size,
@@ -200,7 +238,7 @@ fun ReportIncidentScreen(
                         locationPrecisionOptions.forEachIndexed { index, option ->
                             SegmentedButton(
                                 selected = uiState.locationPrecision == option.first,
-                                onClick = { viewModel.onLocationPrecisionSelected(option.first) },
+                                onClick = { onLocationPrecisionSelected(option.first) },
                                 shape = SegmentedButtonDefaults.itemShape(
                                     index = index,
                                     count = locationPrecisionOptions.size,
@@ -217,13 +255,7 @@ fun ReportIncidentScreen(
                             "Usar GPS actual"
                         },
                         enabled = !uiState.isLoadingLocation,
-                        onClick = {
-                            if (locationPermissionManager.hasLocationPermission()) {
-                                viewModel.loadLocation()
-                            } else {
-                                showLocationRationale = true
-                            }
-                        },
+                        onClick = onUseGpsClick,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     AuraPrimaryButton(
@@ -233,7 +265,7 @@ fun ReportIncidentScreen(
                             "Confirmar ubicacion"
                         },
                         enabled = uiState.location != null,
-                        onClick = viewModel::confirmLocation,
+                        onClick = onConfirmLocation,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -241,7 +273,7 @@ fun ReportIncidentScreen(
 
             OutlinedTextField(
                 value = uiState.description,
-                onValueChange = viewModel::onDescriptionChanged,
+                onValueChange = onDescriptionChanged,
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 4,
                 label = { Text("Descripción opcional") },
@@ -256,7 +288,7 @@ fun ReportIncidentScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(text = "Modo anónimo", style = MaterialTheme.typography.titleMedium)
-                Switch(checked = uiState.isAnonymous, onCheckedChange = viewModel::onAnonymousChanged)
+                Switch(checked = uiState.isAnonymous, onCheckedChange = onAnonymousChanged)
             }
 
             uiState.errorMessage?.let { message ->
@@ -284,7 +316,7 @@ fun ReportIncidentScreen(
             }
 
             OutlinedButton(
-                onClick = viewModel::saveDraft,
+                onClick = onSaveDraft,
                 enabled = uiState.canSaveDraft,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -294,7 +326,7 @@ fun ReportIncidentScreen(
             AuraPrimaryButton(
                 text = if (uiState.isSubmitting) "Guardando..." else "Guardar como pendiente",
                 enabled = uiState.canSubmit,
-                onClick = viewModel::submit,
+                onClick = onSubmit,
                 modifier = Modifier.fillMaxWidth(),
             )
         }

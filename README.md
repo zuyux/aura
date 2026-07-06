@@ -626,6 +626,10 @@ Content-Type: application/json
 
 ---
 
+### AURA Rescate
+
+Módulo futuro para coordinación comunitaria en casos de desastres naturales y emergencias urbanas. Permitirá check-ins de seguridad, solicitudes de ayuda, mapas de recursos, alertas de zonas bloqueadas, perfiles médicos opcionales y sincronización offline/semi-offline para contextos de baja conectividad.
+
 ## Consideraciones éticas
 
 AURA debe evitar convertirse en una herramienta de vigilancia social o persecución. Por eso:
@@ -645,13 +649,7 @@ La app debe ayudar a la comunidad a estar informada, no a crear pánico.
 
 ## Licencia
 
-Este proyecto se publica bajo licencia MIT.
-
-Ver archivo:
-
-```txt
-LICENSE
-```
+MIT
 
 ---
 

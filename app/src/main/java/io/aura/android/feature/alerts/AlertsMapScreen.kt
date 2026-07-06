@@ -1,6 +1,5 @@
 package io.aura.android.feature.alerts
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,15 +19,30 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import io.aura.android.domain.model.Alert
+import io.aura.android.domain.model.AuraLocation
+import io.aura.android.domain.model.SeverityLevel
+import kotlin.math.ln
 import kotlin.math.max
+import kotlin.math.min
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -41,7 +55,10 @@ fun AlertsMapScreen(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        AlertMapCanvas(alerts = alerts)
+        AlertGoogleMap(
+            alerts = alerts,
+            onAlertClick = onAlertClick,
+        )
 
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -66,69 +83,51 @@ fun AlertsMapScreen(
 }
 
 @Composable
-private fun AlertMapCanvas(alerts: List<Alert>) {
-    val gridColor = MaterialTheme.colorScheme.outlineVariant
-    val zoneColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+private fun AlertGoogleMap(
+    alerts: List<Alert>,
+    onAlertClick: (String) -> Unit,
+) {
     val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
     val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
-    val pinColors = alerts.map { it.severity.alertColor() }
+    val mapShape = MaterialTheme.shapes.medium
+    val cameraTarget = remember(alerts) { alerts.cameraTarget() }
+    val cameraZoom = remember(alerts) { alerts.cameraZoom() }
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(cameraTarget, cameraZoom)
+    }
+
+    LaunchedEffect(cameraTarget, cameraZoom) {
+        cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(cameraTarget, cameraZoom))
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1.35f)
-            .background(surfaceVariant, MaterialTheme.shapes.medium),
+            .clip(mapShape)
+            .background(surfaceVariant),
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val horizontalInset = size.width * 0.10f
-            val verticalInset = size.height * 0.12f
-
-            repeat(4) { step ->
-                val x = horizontalInset + (size.width - horizontalInset * 2) * (step + 1) / 5f
-                drawLine(
-                    color = gridColor,
-                    start = Offset(x, verticalInset),
-                    end = Offset(x, size.height - verticalInset),
-                    strokeWidth = 1.dp.toPx(),
-                )
-                val y = verticalInset + (size.height - verticalInset * 2) * (step + 1) / 5f
-                drawLine(
-                    color = gridColor,
-                    start = Offset(horizontalInset, y),
-                    end = Offset(size.width - horizontalInset, y),
-                    strokeWidth = 1.dp.toPx(),
-                )
-            }
-
-            drawCircle(
-                color = zoneColor,
-                radius = max(size.minDimension * 0.34f, 1f),
-                center = center,
-            )
-            drawCircle(
-                color = gridColor,
-                radius = max(size.minDimension * 0.34f, 1f),
-                center = center,
-                style = Stroke(width = 1.dp.toPx()),
-            )
-
-            val bounds = alerts.coordinateBounds()
-            alerts.forEachIndexed { index, alert ->
-                val offset = alert.location.toMapOffset(
-                    bounds = bounds,
-                    width = size.width,
-                    height = size.height,
-                    horizontalInset = horizontalInset,
-                    verticalInset = verticalInset,
-                )
-                val color = pinColors[index]
-                drawCircle(color = color.copy(alpha = 0.18f), radius = 18.dp.toPx(), center = offset)
-                drawCircle(color = color, radius = 7.dp.toPx(), center = offset)
-                drawCircle(
-                    color = Color.White,
-                    radius = 7.dp.toPx(),
-                    center = offset,
-                    style = Stroke(width = 2.dp.toPx()),
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            properties = MapProperties(isBuildingEnabled = false),
+            uiSettings = MapUiSettings(
+                compassEnabled = false,
+                mapToolbarEnabled = false,
+                myLocationButtonEnabled = false,
+                zoomControlsEnabled = false,
+            ),
+        ) {
+            alerts.forEach { alert ->
+                Marker(
+                    state = MarkerState(position = alert.location.toLatLng()),
+                    title = alert.type.label(),
+                    snippet = alert.relativeTimeLabel(),
+                    icon = BitmapDescriptorFactory.defaultMarker(alert.severity.markerHue()),
+                    onClick = {
+                        onAlertClick(alert.id)
+                        true
+                    },
                 )
             }
         }
@@ -194,46 +193,32 @@ private fun MapAlertRow(
     }
 }
 
-private data class CoordinateBounds(
-    val minLatitude: Double,
-    val maxLatitude: Double,
-    val minLongitude: Double,
-    val maxLongitude: Double,
-)
-
-private fun List<Alert>.coordinateBounds(): CoordinateBounds {
+private fun List<Alert>.cameraTarget(): LatLng {
     if (isEmpty()) {
-        return CoordinateBounds(0.0, 1.0, 0.0, 1.0)
+        return LatLng(-12.0464, -77.0428)
     }
 
-    val latitudes = map { it.location.latitude }
-    val longitudes = map { it.location.longitude }
-    val minLatitude = latitudes.minOrNull() ?: 0.0
-    val maxLatitude = latitudes.maxOrNull() ?: minLatitude + 1.0
-    val minLongitude = longitudes.minOrNull() ?: 0.0
-    val maxLongitude = longitudes.maxOrNull() ?: minLongitude + 1.0
-
-    return CoordinateBounds(
-        minLatitude = minLatitude,
-        maxLatitude = if (minLatitude == maxLatitude) maxLatitude + 0.01 else maxLatitude,
-        minLongitude = minLongitude,
-        maxLongitude = if (minLongitude == maxLongitude) maxLongitude + 0.01 else maxLongitude,
-    )
+    val latitude = sumOf { it.location.latitude } / size
+    val longitude = sumOf { it.location.longitude } / size
+    return LatLng(latitude, longitude)
 }
 
-private fun io.aura.android.domain.model.AuraLocation.toMapOffset(
-    bounds: CoordinateBounds,
-    width: Float,
-    height: Float,
-    horizontalInset: Float,
-    verticalInset: Float,
-): Offset {
-    val longitudeRange = bounds.maxLongitude - bounds.minLongitude
-    val latitudeRange = bounds.maxLatitude - bounds.minLatitude
-    val xRatio = ((longitude - bounds.minLongitude) / longitudeRange).toFloat().coerceIn(0f, 1f)
-    val yRatio = (1f - ((latitude - bounds.minLatitude) / latitudeRange).toFloat()).coerceIn(0f, 1f)
-    return Offset(
-        x = horizontalInset + (width - horizontalInset * 2) * xRatio,
-        y = verticalInset + (height - verticalInset * 2) * yRatio,
-    )
+private fun List<Alert>.cameraZoom(): Float {
+    if (size <= 1) {
+        return 14f
+    }
+
+    val latitudeSpan = (maxOf { it.location.latitude } - minOf { it.location.latitude }).coerceAtLeast(0.01)
+    val longitudeSpan = (maxOf { it.location.longitude } - minOf { it.location.longitude }).coerceAtLeast(0.01)
+    val maxSpan = max(latitudeSpan, longitudeSpan)
+    val zoom = 14.5 - ln(maxSpan * 100.0) / ln(2.0)
+    return min(15.5, max(10.0, zoom)).toFloat()
+}
+
+private fun AuraLocation.toLatLng(): LatLng = LatLng(latitude, longitude)
+
+private fun SeverityLevel.markerHue(): Float = when (this) {
+    SeverityLevel.LOW -> BitmapDescriptorFactory.HUE_GREEN
+    SeverityLevel.MEDIUM -> BitmapDescriptorFactory.HUE_ORANGE
+    SeverityLevel.HIGH -> BitmapDescriptorFactory.HUE_RED
 }

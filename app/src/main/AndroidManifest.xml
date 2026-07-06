@@ -22,6 +22,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Aura"
         android:usesCleartextTraffic="true">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${GOOGLE_MAPS_API_KEY}" />
+
         <service
             android:name=".data.notification.fcm.AuraFirebaseMessagingService"
             android:exported="false">
