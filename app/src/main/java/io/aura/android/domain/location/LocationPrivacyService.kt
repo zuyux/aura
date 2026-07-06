@@ -14,6 +14,17 @@ class LocationPrivacyService @Inject constructor() {
             LocationPrecision.DISTRICT_ONLY -> location.roundedTo(decimals = 2, precision = precision)
         }
 
+    fun applyPublicPrecision(location: AuraLocation, precision: LocationPrecision): AuraLocation =
+        applyPrecision(
+            location = location,
+            precision = when (precision) {
+                LocationPrecision.EXACT -> LocationPrecision.APPROXIMATE
+                LocationPrecision.APPROXIMATE,
+                LocationPrecision.DISTRICT_ONLY,
+                -> precision
+            },
+        )
+
     private fun AuraLocation.roundedTo(decimals: Int, precision: LocationPrecision): AuraLocation {
         val factor = 10.0.pow(decimals)
         return copy(

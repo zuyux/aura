@@ -30,11 +30,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import io.aura.android.BuildConfig
 import io.aura.android.feature.alerts.AlertDetailScreen
 import io.aura.android.feature.alerts.AlertsListScreen
+import io.aura.android.feature.evidence.AddEvidenceScreen
 import io.aura.android.feature.guardian.GuardianScreen
 import io.aura.android.feature.home.HomeScreen
 import io.aura.android.feature.profile.OnboardingScreen
+import io.aura.android.feature.profile.PrivacyDisclaimerScreen
 import io.aura.android.feature.profile.ProfileScreen
 import io.aura.android.feature.profile.ProfileViewModel
 import io.aura.android.feature.report.ReportIncidentScreen
@@ -65,6 +68,12 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
             }
             return
         }
+        !profileUiState.privacyDisclaimerAccepted -> {
+            PrivacyDisclaimerScreen(
+                onAcceptClick = profileViewModel::acceptPrivacyDisclaimer,
+            )
+            return
+        }
         !profileUiState.isProfileComplete -> {
             OnboardingScreen(
                 uiState = profileUiState,
@@ -85,6 +94,7 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
     val currentTopLevelRoute = when (currentRoute) {
         AuraRoute.LEGACY_HOME_ROUTE -> AuraRoute.Home.route
         AuraRoute.AlertDetail.route -> AuraRoute.Alerts.route
+        AuraRoute.AddEvidence.route -> AuraRoute.Report.route
         else -> currentRoute
     }
 
@@ -135,7 +145,17 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
                 )
             }
             composable(AuraRoute.Report.route) {
-                ReportIncidentScreen()
+                ReportIncidentScreen(
+                    onAddEvidenceClick = { reportId ->
+                        navController.navigate(AuraRoute.addEvidenceRoute(reportId))
+                    },
+                )
+            }
+            composable(
+                route = AuraRoute.AddEvidence.route,
+                arguments = listOf(navArgument(AuraRoute.REPORT_ID_ARG) { type = NavType.StringType }),
+            ) {
+                AddEvidenceScreen(onBackClick = { navController.popBackStack() })
             }
             composable(AuraRoute.Alerts.route) {
                 AlertsListScreen(
@@ -154,7 +174,21 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
                 GuardianScreen()
             }
             composable(AuraRoute.Profile.route) {
-                ProfileScreen(profile = profileUiState.profile)
+                ProfileScreen(
+                    profile = profileUiState.profile,
+                    anonymousModeDefault = profileUiState.anonymousModeDefault,
+                    onAnonymousModeDefaultChanged = profileViewModel::onAnonymousModeDefaultChanged,
+                    offlineModeEnabled = profileUiState.offlineModeEnabled,
+                    onOfflineModeChanged = profileViewModel::onOfflineModeChanged,
+                    notificationsEnabled = profileUiState.notificationsEnabled,
+                    onNotificationsEnabledChanged = profileViewModel::onNotificationsEnabledChanged,
+                    guardianInviteNotificationsEnabled = profileUiState.guardianInviteNotificationsEnabled,
+                    onGuardianInviteNotificationsChanged = profileViewModel::onGuardianInviteNotificationsChanged,
+                    sosAlertNotificationsEnabled = profileUiState.sosAlertNotificationsEnabled,
+                    onSosAlertNotificationsChanged = profileViewModel::onSosAlertNotificationsChanged,
+                    privacyDisclaimerAccepted = profileUiState.privacyDisclaimerAccepted,
+                    appVersion = BuildConfig.VERSION_NAME,
+                )
             }
         }
     }

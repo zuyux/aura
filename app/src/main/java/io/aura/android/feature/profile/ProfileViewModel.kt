@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.aura.android.domain.model.UserProfile
+import io.aura.android.domain.repository.ProfileSettingsRepository
 import io.aura.android.domain.repository.UserProfileRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
+    private val profileSettingsRepository: ProfileSettingsRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -29,6 +31,36 @@ class ProfileViewModel @Inject constructor(
                         isLoading = false,
                         name = if (it.name.isBlank()) profile?.displayName.orEmpty() else it.name,
                         phoneNumber = if (it.phoneNumber.isBlank()) profile?.phoneNumber.orEmpty() else it.phoneNumber,
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+            profileSettingsRepository.observeSettings().collect { settings ->
+                _uiState.update {
+                    it.copy(
+                        privacyDisclaimerAccepted = settings.privacyDisclaimerAccepted,
+                        anonymousModeDefault = settings.anonymousModeDefault,
+                        offlineModeEnabled = settings.offlineModeEnabled,
+                        notificationsEnabled = settings.notificationsEnabled,
+                        guardianInviteNotificationsEnabled = settings.guardianInviteNotificationsEnabled,
+                        sosAlertNotificationsEnabled = settings.sosAlertNotificationsEnabled,
+                    )
+                }
+            }
+        }
+    }
+
+    fun acceptPrivacyDisclaimer() {
+        _uiState.update { it.copy(privacyDisclaimerAccepted = true, errorMessage = null, successMessage = null) }
+        viewModelScope.launch {
+            runCatching {
+                profileSettingsRepository.setPrivacyDisclaimerAccepted(true)
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        privacyDisclaimerAccepted = false,
+                        errorMessage = error.message ?: "No se pudo guardar la confirmacion de privacidad.",
                     )
                 }
             }
@@ -59,6 +91,71 @@ class ProfileViewModel @Inject constructor(
                 errorMessage = "Puedes ingresar el codigo manualmente o permitir lectura de SMS.",
                 successMessage = null,
             )
+        }
+    }
+
+    fun onAnonymousModeDefaultChanged(enabled: Boolean) {
+        _uiState.update { it.copy(anonymousModeDefault = enabled, errorMessage = null, successMessage = null) }
+        viewModelScope.launch {
+            runCatching {
+                profileSettingsRepository.setAnonymousModeDefault(enabled)
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "No se pudo guardar la preferencia.")
+                }
+            }
+        }
+    }
+
+    fun onOfflineModeChanged(enabled: Boolean) {
+        _uiState.update { it.copy(offlineModeEnabled = enabled, errorMessage = null, successMessage = null) }
+        viewModelScope.launch {
+            runCatching {
+                profileSettingsRepository.setOfflineModeEnabled(enabled)
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "No se pudo guardar la preferencia.")
+                }
+            }
+        }
+    }
+
+    fun onNotificationsEnabledChanged(enabled: Boolean) {
+        _uiState.update { it.copy(notificationsEnabled = enabled, errorMessage = null, successMessage = null) }
+        viewModelScope.launch {
+            runCatching {
+                profileSettingsRepository.setNotificationsEnabled(enabled)
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "No se pudo guardar la preferencia.")
+                }
+            }
+        }
+    }
+
+    fun onGuardianInviteNotificationsChanged(enabled: Boolean) {
+        _uiState.update { it.copy(guardianInviteNotificationsEnabled = enabled, errorMessage = null, successMessage = null) }
+        viewModelScope.launch {
+            runCatching {
+                profileSettingsRepository.setGuardianInviteNotificationsEnabled(enabled)
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "No se pudo guardar la preferencia.")
+                }
+            }
+        }
+    }
+
+    fun onSosAlertNotificationsChanged(enabled: Boolean) {
+        _uiState.update { it.copy(sosAlertNotificationsEnabled = enabled, errorMessage = null, successMessage = null) }
+        viewModelScope.launch {
+            runCatching {
+                profileSettingsRepository.setSosAlertNotificationsEnabled(enabled)
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "No se pudo guardar la preferencia.")
+                }
+            }
         }
     }
 
@@ -129,6 +226,12 @@ data class ProfileUiState(
     val name: String = "",
     val phoneNumber: String = "",
     val smsCode: String = "",
+    val privacyDisclaimerAccepted: Boolean = false,
+    val anonymousModeDefault: Boolean = true,
+    val offlineModeEnabled: Boolean = false,
+    val notificationsEnabled: Boolean = true,
+    val guardianInviteNotificationsEnabled: Boolean = true,
+    val sosAlertNotificationsEnabled: Boolean = true,
     val isSaving: Boolean = false,
     val errorMessage: String? = null,
     val successMessage: String? = null,

@@ -46,8 +46,8 @@ internal fun IncidentType.icon(): ImageVector = when (this) {
 
 internal fun AlertStatus.label(): String = when (this) {
     AlertStatus.UNVERIFIED -> "No verificado"
-    AlertStatus.COMMUNITY_CONFIRMED -> "Comunidad"
-    AlertStatus.AUTHORITY_CONFIRMED -> "Autoridad"
+    AlertStatus.COMMUNITY_CONFIRMED -> "Confirmado"
+    AlertStatus.AUTHORITY_CONFIRMED -> "Confirmado"
     AlertStatus.RESOLVED -> "Resuelto"
     AlertStatus.DISMISSED -> "Descartado"
 }

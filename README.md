@@ -52,6 +52,23 @@ Licencia: MIT
 
 El proyecto usa Kotlin, Jetpack Compose, Material 3, Gradle Kotlin DSL y el paquete base `io.aura.android`.
 
+### Configuracion del servidor
+
+La app lee la URL base del API desde `BuildConfig.AURA_API_BASE_URL`.
+
+```bash
+# Backend local para emulador Android
+./gradlew :app:assembleDebug
+
+# Backend local personalizado
+./gradlew :app:assembleDebug -PAURA_DEBUG_API_BASE_URL=http://10.0.2.2:8080/
+
+# Backend de produccion para builds release
+./gradlew :app:assembleRelease -PAURA_PRODUCTION_API_BASE_URL=https://api.example.com/
+```
+
+Si no se define una propiedad, `debug` usa `http://10.0.2.2:8080/` y `release` usa `https://api.aura.community/`.
+
 ---
 
 ## Objetivo del MVP 0.1

@@ -6,6 +6,7 @@ import androidx.room.TypeConverters
 import io.aura.android.data.local.dao.AlertDao
 import io.aura.android.data.local.dao.DeviceIdentityDao
 import io.aura.android.data.local.dao.GuardianContactDao
+import io.aura.android.data.local.dao.GuardianNotificationDao
 import io.aura.android.data.local.dao.IncidentEvidenceDao
 import io.aura.android.data.local.dao.IncidentReportDao
 import io.aura.android.data.local.dao.ReportVerificationDao
@@ -15,6 +16,7 @@ import io.aura.android.data.local.dao.UserProfileDao
 import io.aura.android.data.local.entity.AlertEntity
 import io.aura.android.data.local.entity.DeviceIdentityEntity
 import io.aura.android.data.local.entity.GuardianContactEntity
+import io.aura.android.data.local.entity.GuardianNotificationEntity
 import io.aura.android.data.local.entity.IncidentEvidenceEntity
 import io.aura.android.data.local.entity.IncidentReportEntity
 import io.aura.android.data.local.entity.ReportVerificationEntity
@@ -32,11 +34,12 @@ import io.aura.android.data.local.entity.UserProfileEntity
         AlertEntity::class,
         ReportVerificationEntity::class,
         GuardianContactEntity::class,
+        GuardianNotificationEntity::class,
         SafetySessionEntity::class,
         SafetySessionUpdateEntity::class,
         SyncQueueEntity::class,
     ],
-    version = 2,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(AuraTypeConverters::class)
@@ -48,6 +51,7 @@ abstract class AuraDatabase : RoomDatabase() {
     abstract fun alertDao(): AlertDao
     abstract fun reportVerificationDao(): ReportVerificationDao
     abstract fun guardianContactDao(): GuardianContactDao
+    abstract fun guardianNotificationDao(): GuardianNotificationDao
     abstract fun safetySessionDao(): SafetySessionDao
     abstract fun syncQueueDao(): SyncQueueDao
 }

@@ -11,6 +11,9 @@ interface DeviceIdentityDao {
     @Query("SELECT * FROM device_identities LIMIT 1")
     fun observeIdentity(): Flow<DeviceIdentityEntity?>
 
+    @Query("SELECT * FROM device_identities LIMIT 1")
+    suspend fun getIdentity(): DeviceIdentityEntity?
+
     @Upsert
     suspend fun upsert(identity: DeviceIdentityEntity)
 }

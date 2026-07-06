@@ -132,7 +132,7 @@ Muted Text
 
 * [X] Add Room database: `AuraDatabase`
 
-* [ ] Create entities:
+* [X] Create entities:
 
   * [X] `UserProfileEntity`
   * [X] `DeviceIdentityEntity`
@@ -145,7 +145,7 @@ Muted Text
   * [X] `SafetySessionUpdateEntity`
   * [X] `SyncQueueEntity`
 
-* [ ] Create DAOs:
+* [X] Create DAOs:
 
   * [X] `IncidentReportDao`
   * [X] `IncidentEvidenceDao`
@@ -155,27 +155,27 @@ Muted Text
   * [X] `SafetySessionDao`
   * [X] `SyncQueueDao`
 
-* [ ] Add mappers:
+* [X] Add mappers:
 
   * [X] Entity → Domain
   * [X] Domain → Entity
-  * [ ] Domain → DTO
-  * [ ] DTO → Domain
+  * [X] Domain → DTO
+  * [X] DTO → Domain
 
 ---
 
 ### 8. Feature: Home
 
-* [ ] Create `HomeScreen`
-* [ ] Create `HomeViewModel`
-* [ ] Show AURA logo
-* [ ] Show greeting
-* [ ] Add large SOS button
-* [ ] Add shortcut to “Reportar incidente”
-* [ ] Add shortcut to “Alertas cercanas”
-* [ ] Add shortcut to “Red Guardián”
-* [ ] Add bottom navigation
-* [ ] Show offline status banner when needed
+* [X] Create `HomeScreen`
+* [X] Create `HomeViewModel`
+* [X] Show AURA logo
+* [X] Show greeting
+* [X] Add large SOS button
+* [X] Add shortcut to “Reportar incidente”
+* [X] Add shortcut to “Alertas cercanas”
+* [X] Add shortcut to “Red Guardián”
+* [X] Add bottom navigation
+* [X] Show offline status banner when needed
 
 ---
 
@@ -218,54 +218,56 @@ Muted Text
 
 ### 10. Feature: Evidence
 
-* [ ] Create `AddEvidenceScreen`
-* [ ] Add photo attachment
-* [ ] Add video attachment
-* [ ] Add audio attachment
-* [ ] Save evidence locally
-* [ ] Generate SHA-256 hash
-* [ ] Strip EXIF metadata from images
-* [ ] Mark evidence as private by default
-* [ ] Attach evidence to report
-* [ ] Queue evidence upload after report sync
+* [X] Create `AddEvidenceScreen`
+* [X] Add photo attachment
+* [X] Add video attachment
+* [X] Add audio attachment
+* [X] Save evidence locally
+* [X] Generate SHA-256 hash
+* [X] Strip EXIF metadata from images
+* [X] Mark evidence as private by default
+* [X] Attach evidence to report
+* [X] Queue evidence upload after report sync
 
 ---
 
 ### 11. Feature: Alertas cercanas
 
-* [ ] Create `AlertsMapScreen`
+* [X] Create `AlertsMapScreen`
 
 * [X] Create `AlertsListScreen`
 
 * [X] Create `AlertDetailScreen`
 
-* [ ] Create `AlertsViewModel`
+* [X] Create `AlertsViewModel`
 
-* [ ] Load cached alerts from Room
+* [X] Load cached alerts from Room
 
-* [ ] Fetch nearby alerts when online
+* [X] Fetch nearby alerts when online
 
-* [ ] Display alert cards
+* [X] Configure production alerts API base URL
 
-* [ ] Display alert status:
+* [X] Display alert cards
 
-  * [ ] No verificado
-  * [ ] Confirmado
-  * [ ] Resuelto
+* [X] Display alert status:
 
-* [ ] Add filters:
+  * [X] No verificado
+  * [X] Confirmado
+  * [X] Resuelto
 
-  * [ ] Todas
-  * [ ] Robo
-  * [ ] Violencia
-  * [ ] Acoso
-  * [ ] Accidente
+* [X] Add filters:
 
-* [ ] Add map pins or zones
+  * [X] Todas
+  * [X] Robo
+  * [X] Violencia
+  * [X] Acoso
+  * [X] Accidente
+
+* [X] Add map pins or zones
 
 * [X] Add alert detail page
 
-* [ ] Add verification actions:
+* [X] Add verification actions:
 
   * [X] “Yo también lo vi”
   * [X] “Parece falso”
@@ -280,61 +282,61 @@ Muted Text
 * [X] Add trusted contacts locally
 * [X] Start safety session
 * [X] Save `SafetySession`
-* [ ] Track location during active session
+* [X] Track location during active session
 * [X] Show “Compartiendo ubicación”
 * [X] Add “Estoy bien” button
 * [X] Add “Llamar” button
 * [X] Add “Finalizar sesión”
 * [X] Add SMS fallback draft
-* [ ] Stop location updates when session ends
+* [X] Stop location updates when session ends
 
 ---
 
 ### 13. Location module
 
 * [X] Create `LocationProvider`
-* [ ] Create `LocationPermissionManager`
+* [X] Create `LocationPermissionManager`
 * [X] Create `LocationPrivacyService`
-* [ ] Create `GeohashService`
+* [X] Create `GeohashService`
 * [X] Request precise or approximate location contextually
 * [X] Convert exact location to approximate zone for public reports
-* [ ] Store last known location
+* [X] Store last known location
 * [X] Handle location unavailable state
 
 ---
 
 ### 14. Offline-first sync
 
-* [ ] Create `SyncQueueManager`
+* [X] Create `SyncQueueManager`
 
-* [ ] Create `ReportSyncWorker`
+* [X] Create `ReportSyncWorker`
 
-* [ ] Create `EvidenceUploadWorker`
+* [X] Create `EvidenceUploadWorker`
 
-* [ ] Create `AlertFetchWorker`
+* [X] Create `AlertFetchWorker`
 
-* [ ] Create `SafetySessionWorker`
+* [X] Create `SafetySessionWorker`
 
-* [ ] Add retry with exponential backoff
+* [X] Add retry with exponential backoff
 
-* [ ] Add sync priority:
+* [X] Add sync priority:
 
-  * [ ] Critical: SOS / Red Guardián
-  * [ ] High: incident reports
-  * [ ] Normal: verification actions
-  * [ ] Low: evidence upload
+  * [X] Critical: SOS / Red Guardián
+  * [X] High: incident reports
+  * [X] Normal: verification actions
+  * [X] Low: evidence upload
 
-* [ ] Show pending sync state in UI
+* [X] Show pending sync state in UI
 
-* [ ] Retry sync when connection returns
+* [X] Retry sync when connection returns
 
 ---
 
 ### 15. Network layer
 
-* [ ] Define API client
-* [ ] Define DTOs
-* [ ] Add endpoints:
+* [X] Define API client
+* [X] Define DTOs
+* [X] Add endpoints:
 
 ```txt
 POST /reports
@@ -348,23 +350,23 @@ PATCH /safety-sessions/{id}
 POST /safety-sessions/{id}/updates
 ```
 
-* [ ] Add error handling
-* [ ] Add timeout handling
-* [ ] Add offline detection
+* [X] Add error handling
+* [X] Add timeout handling
+* [X] Add offline detection
 
 ---
 
 ### 16. Privacy and security
 
-* [ ] Store sensitive preferences in DataStore
-* [ ] Use Android Keystore for local keys
-* [ ] Avoid logging sensitive data
-* [ ] Strip image metadata
-* [ ] Hash evidence files
-* [ ] Keep evidence private by default
-* [ ] Avoid exposing exact public location
-* [ ] Add delete local evidence option
-* [ ] Add privacy disclaimer screen
+* [X] Store sensitive preferences in DataStore
+* [X] Use Android Keystore for local keys
+* [X] Avoid logging sensitive data
+* [X] Strip image metadata
+* [X] Hash evidence files
+* [X] Keep evidence private by default
+* [X] Avoid exposing exact public location
+* [X] Add delete local evidence option
+* [X] Add privacy disclaimer screen
 * [X] Add permission rationale dialogs
 
 ---
@@ -375,21 +377,21 @@ POST /safety-sessions/{id}/updates
 * [X] Add first-run phone onboarding
 * [X] Add SMS code autofill permission flow
 * [X] Add local display name
-* [ ] Add anonymous mode default toggle
-* [ ] Add offline mode setting
-* [ ] Add notification preferences
-* [ ] Add emergency contacts entry point
+* [X] Add anonymous mode default toggle
+* [X] Add offline mode setting
+* [X] Add notification preferences
+* [X] Add emergency contacts entry point
 * [ ] Add theme selector
-* [ ] Add app version
-* [ ] Add privacy policy link placeholder
+* [X] Add app version
+* [X] Add privacy policy link placeholder
 
 ---
 
 ### 18. Notifications
 
-* [ ] Add local notification for active Red Guardián session
-* [ ] Add notification for pending sync
-* [ ] Add notification for nearby alerts
+* [X] Add local notification for active Red Guardián session
+* [X] Add notification for pending sync
+* [X] Add notification for nearby alerts
 * [ ] Add notification channel setup
 * [ ] Prepare Firebase Cloud Messaging integration for later
 
@@ -397,12 +399,12 @@ POST /safety-sessions/{id}/updates
 
 ### 19. Testing
 
-* [ ] Unit test domain use cases
-* [ ] Unit test mappers
-* [ ] Unit test location privacy logic
-* [ ] Unit test sync queue logic
-* [ ] Room DAO tests
-* [ ] Worker tests
+* [X] Unit test domain use cases
+* [X] Unit test mappers
+* [X] Unit test location privacy logic
+* [X] Unit test sync queue logic
+* [X] Room DAO tests
+* [X] Worker tests
 * [ ] Compose UI tests for:
 
   * [ ] Home

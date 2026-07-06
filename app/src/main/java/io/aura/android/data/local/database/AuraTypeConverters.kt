@@ -4,6 +4,8 @@ import androidx.room.TypeConverter
 import io.aura.android.domain.model.AlertStatus
 import io.aura.android.domain.model.EvidenceType
 import io.aura.android.domain.model.EvidenceVisibility
+import io.aura.android.domain.model.GuardianNotificationStatus
+import io.aura.android.domain.model.GuardianNotificationType
 import io.aura.android.domain.model.IncidentType
 import io.aura.android.domain.model.LocationPrecision
 import io.aura.android.domain.model.ReportStatus
@@ -45,6 +47,12 @@ class AuraTypeConverters {
 
     @TypeConverter fun safetySessionStatus(value: SafetySessionStatus): String = value.name
     @TypeConverter fun safetySessionStatus(value: String): SafetySessionStatus = SafetySessionStatus.valueOf(value)
+
+    @TypeConverter fun guardianNotificationType(value: GuardianNotificationType): String = value.name
+    @TypeConverter fun guardianNotificationType(value: String): GuardianNotificationType = GuardianNotificationType.valueOf(value)
+
+    @TypeConverter fun guardianNotificationStatus(value: GuardianNotificationStatus): String = value.name
+    @TypeConverter fun guardianNotificationStatus(value: String): GuardianNotificationStatus = GuardianNotificationStatus.valueOf(value)
 
     @TypeConverter fun syncOperation(value: SyncOperation): String = value.name
     @TypeConverter fun syncOperation(value: String): SyncOperation = SyncOperation.valueOf(value)

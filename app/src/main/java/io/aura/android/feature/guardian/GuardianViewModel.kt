@@ -3,6 +3,9 @@ package io.aura.android.feature.guardian
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.aura.android.data.guardian.GuardianSosNotifier
+import io.aura.android.data.guardian.SmsFallbackResult
+import io.aura.android.data.guardian.guardianSosMessage
 import io.aura.android.domain.location.LocationProvider
 import io.aura.android.domain.model.AuraLocation
 import io.aura.android.domain.model.GuardianContact
@@ -12,20 +15,29 @@ import io.aura.android.domain.model.SafetySessionUpdate
 import io.aura.android.domain.repository.GuardianRepository
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class GuardianViewModel @Inject constructor(
     private val guardianRepository: GuardianRepository,
     private val locationProvider: LocationProvider,
+    private val guardianSosNotifier: GuardianSosNotifier,
 ) : ViewModel() {
     private val draftState = MutableStateFlow(GuardianDraftState())
+    private var locationTrackingJob: Job? = null
+    private var locationTrackingSessionId: String? = null
 
     val uiState: StateFlow<GuardianUiState> = combine(
         guardianRepository.observeContacts(),
@@ -50,6 +62,21 @@ class GuardianViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = GuardianUiState(),
     )
+
+    init {
+        viewModelScope.launch {
+            guardianRepository.observeSessions()
+                .map { sessions -> sessions.firstOrNull { it.isLiveSession } }
+                .distinctUntilChangedBy { session -> session?.id }
+                .collect { session ->
+                    if (session == null) {
+                        stopLocationTracking()
+                    } else {
+                        startLocationTracking(session.id)
+                    }
+                }
+        }
+    }
 
     fun onContactPicked(displayName: String, phoneNumber: String, photoUri: String?) {
         draftState.update {
@@ -110,10 +137,29 @@ class GuardianViewModel @Inject constructor(
                 )
             }.onSuccess {
                 draftState.update {
-                    GuardianDraftState(message = "Contacto guardado localmente.")
+                    GuardianDraftState(message = "Contacto guardado. Invitacion enviada para aprobacion.")
                 }
             }.onFailure { error ->
                 draftState.update { it.copy(errorMessage = error.message ?: "No se pudo guardar el contacto.") }
+            }
+        }
+    }
+
+    fun removeContact(contact: GuardianContact) {
+        viewModelScope.launch {
+            runCatching {
+                guardianRepository.removeContact(contact.id)
+            }.onSuccess {
+                draftState.update {
+                    it.copy(
+                        message = "${contact.displayName} fue eliminado de Red Guardian.",
+                        errorMessage = null,
+                    )
+                }
+            }.onFailure { error ->
+                draftState.update {
+                    it.copy(errorMessage = error.message ?: "No se pudo eliminar el contacto.", message = null)
+                }
             }
         }
     }
@@ -196,17 +242,55 @@ class GuardianViewModel @Inject constructor(
     }
 
     fun triggerSos() {
-        val session = uiState.value.activeSession ?: run {
-            startSession()
-            return
-        }
         viewModelScope.launch {
-            saveSessionUpdate(
-                session = session.copy(status = SafetySessionStatus.SOS_TRIGGERED),
-                location = session.lastLocation,
-                note = "SOS activado",
-                message = "SOS activado y guardado localmente.",
-            )
+            draftState.update { it.copy(isBusy = true, errorMessage = null, message = null) }
+            val state = uiState.value
+            val now = System.currentTimeMillis()
+            val location = runCatching { locationProvider.getCurrentLocation() }.getOrNull()
+            val activeSession = state.activeSession
+            val session = if (activeSession == null) {
+                SafetySession(
+                    id = UUID.randomUUID().toString(),
+                    status = SafetySessionStatus.SOS_TRIGGERED,
+                    startedAtMillis = now,
+                    endedAtMillis = null,
+                    lastLocation = location,
+                )
+            } else {
+                activeSession.copy(
+                    status = SafetySessionStatus.SOS_TRIGGERED,
+                    lastLocation = location ?: activeSession.lastLocation,
+                )
+            }
+            val sosMessage = guardianSosMessage(session.lastLocation)
+
+            runCatching {
+                guardianRepository.saveSession(session)
+                guardianRepository.saveUpdate(
+                    SafetySessionUpdate(
+                        id = UUID.randomUUID().toString(),
+                        sessionId = session.id,
+                        location = session.lastLocation,
+                        note = SOS_UPDATE_NOTE,
+                        createdAtMillis = now,
+                    ),
+                )
+                guardianSosNotifier.sendSmsFallback(state.contacts, sosMessage)
+            }.onSuccess { smsResult ->
+                draftState.update {
+                    it.copy(
+                        isBusy = false,
+                        message = sosSuccessMessage(
+                            locationAvailable = session.lastLocation != null,
+                            smsResult = smsResult,
+                        ),
+                    )
+                }
+            }.onFailure { error ->
+                draftState.update {
+                    it.copy(isBusy = false, errorMessage = error.message ?: "No se pudo activar SOS.")
+                }
+            }
         }
     }
 
@@ -217,12 +301,13 @@ class GuardianViewModel @Inject constructor(
                 status = SafetySessionStatus.ENDED_SAFE,
                 endedAtMillis = System.currentTimeMillis(),
             )
-            saveSessionUpdate(
+            val didEndSession = saveSessionUpdate(
                 session = endedSession,
                 location = session.lastLocation,
                 note = "Sesion finalizada",
                 message = "Sesion finalizada como segura.",
             )
+            if (didEndSession) stopLocationTracking()
         }
     }
 
@@ -231,9 +316,9 @@ class GuardianViewModel @Inject constructor(
         location: AuraLocation?,
         note: String,
         message: String,
-    ) {
+    ): Boolean {
         draftState.update { it.copy(isBusy = true, errorMessage = null, message = null) }
-        runCatching {
+        val result = runCatching {
             guardianRepository.saveSession(session)
             guardianRepository.saveUpdate(
                 SafetySessionUpdate(
@@ -244,14 +329,74 @@ class GuardianViewModel @Inject constructor(
                     createdAtMillis = System.currentTimeMillis(),
                 ),
             )
-        }.onSuccess {
+        }
+        result.onSuccess {
             draftState.update { it.copy(isBusy = false, message = message) }
         }.onFailure { error ->
             draftState.update {
                 it.copy(isBusy = false, errorMessage = error.message ?: "No se pudo actualizar la sesion.")
             }
         }
+        return result.isSuccess
     }
+
+    private fun startLocationTracking(sessionId: String) {
+        if (locationTrackingJob?.isActive == true && locationTrackingSessionId == sessionId) return
+
+        stopLocationTracking()
+        locationTrackingSessionId = sessionId
+
+        locationTrackingJob = viewModelScope.launch {
+            delay(ACTIVE_SESSION_LOCATION_INTERVAL_MILLIS)
+            while (isActive) {
+                val session = liveSession(sessionId) ?: break
+                val location = runCatching { locationProvider.getCurrentLocation() }.getOrNull()
+                if (location != null) {
+                    runCatching {
+                        guardianRepository.saveSession(session.copy(lastLocation = location))
+                        guardianRepository.saveUpdate(
+                            SafetySessionUpdate(
+                                id = UUID.randomUUID().toString(),
+                                sessionId = session.id,
+                                location = location,
+                                note = "Ubicacion actualizada",
+                                createdAtMillis = System.currentTimeMillis(),
+                            ),
+                        )
+                    }
+                }
+                delay(ACTIVE_SESSION_LOCATION_INTERVAL_MILLIS)
+            }
+        }
+    }
+
+    private fun stopLocationTracking() {
+        locationTrackingJob?.cancel()
+        locationTrackingJob = null
+        locationTrackingSessionId = null
+    }
+
+    private suspend fun liveSession(sessionId: String): SafetySession? =
+        guardianRepository.observeSessions()
+            .map { sessions -> sessions.firstOrNull { it.id == sessionId && it.isLiveSession } }
+            .first()
+}
+
+private fun sosSuccessMessage(
+    locationAvailable: Boolean,
+    smsResult: SmsFallbackResult,
+): String {
+    val locationText = if (locationAvailable) {
+        "GPS actual guardado"
+    } else {
+        "GPS no disponible todavia"
+    }
+    val smsText = when (smsResult) {
+        is SmsFallbackResult.Sent -> "SMS enviado a ${smsResult.contactCount} contacto(s)"
+        SmsFallbackResult.NoContacts -> "sin contactos SMS"
+        SmsFallbackResult.PermissionMissing -> "SMS pendiente por permiso"
+    }
+    return "SOS activado. $locationText; notificacion de Red Guardian en cola; $smsText."
 }
 
 data class GuardianUiState(
@@ -276,3 +421,9 @@ private data class GuardianDraftState(
     val message: String? = null,
     val errorMessage: String? = null,
 )
+
+private val SafetySession.isLiveSession: Boolean
+    get() = status == SafetySessionStatus.ACTIVE || status == SafetySessionStatus.SOS_TRIGGERED
+
+private const val ACTIVE_SESSION_LOCATION_INTERVAL_MILLIS = 60_000L
+private const val SOS_UPDATE_NOTE = "SOS activado"

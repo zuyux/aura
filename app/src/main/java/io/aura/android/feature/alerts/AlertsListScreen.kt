@@ -15,12 +15,16 @@ import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +45,7 @@ fun AlertsListScreen(
     viewModel: AlertsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var displayMode by remember { mutableStateOf(AlertsDisplayMode.LIST) }
 
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
@@ -58,22 +63,90 @@ fun AlertsListScreen(
                 message = "Las alertas se muestran desde el dispositivo y podran sincronizarse despues.",
             )
 
+            AlertsModeSelector(
+                selectedMode = displayMode,
+                onModeSelected = { displayMode = it },
+            )
+            AlertFilterRow(
+                selectedFilter = uiState.selectedFilter,
+                onFilterSelected = viewModel::selectFilter,
+            )
+
             when {
                 uiState.isLoading -> AuraLoadingState(message = "Cargando alertas...")
                 uiState.alerts.isEmpty() -> AuraEmptyState(
-                    title = "No hay alertas cercanas",
-                    body = "Cuando se registren incidentes en tu zona apareceran aqui.",
+                    title = if (uiState.totalAlerts == 0) {
+                        "No hay alertas cercanas"
+                    } else {
+                        "No hay alertas de ${uiState.selectedFilter.label.lowercase()}"
+                    },
+                    body = if (uiState.totalAlerts == 0) {
+                        "Cuando se registren incidentes en tu zona apareceran aqui."
+                    } else {
+                        "Prueba con otro filtro para revisar el resto de alertas guardadas."
+                    },
                     icon = Icons.Outlined.Shield,
                 )
-                else -> uiState.alerts.forEach { alert ->
-                    AlertListItem(
-                        alert = alert,
-                        onClick = { onAlertClick(alert.id) },
-                    )
+                displayMode == AlertsDisplayMode.MAP -> AlertsMapScreen(
+                    alerts = uiState.alerts,
+                    onAlertClick = onAlertClick,
+                )
+                else -> {
+                    uiState.alerts.forEach { alert ->
+                        AlertListItem(
+                            alert = alert,
+                            onClick = { onAlertClick(alert.id) },
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AlertsModeSelector(
+    selectedMode: AlertsDisplayMode,
+    onModeSelected: (AlertsDisplayMode) -> Unit,
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        AlertsDisplayMode.entries.forEach { mode ->
+            FilterChip(
+                selected = selectedMode == mode,
+                onClick = { onModeSelected(mode) },
+                label = { Text(mode.label) },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AlertFilterRow(
+    selectedFilter: AlertFilter,
+    onFilterSelected: (AlertFilter) -> Unit,
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        AlertFilter.entries.forEach { filter ->
+            FilterChip(
+                selected = selectedFilter == filter,
+                onClick = { onFilterSelected(filter) },
+                label = { Text(filter.label) },
+            )
+        }
+    }
+}
+
+private enum class AlertsDisplayMode(val label: String) {
+    LIST("Lista"),
+    MAP("Mapa"),
 }
 
 @OptIn(ExperimentalLayoutApi::class)

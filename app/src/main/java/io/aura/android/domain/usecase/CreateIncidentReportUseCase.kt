@@ -25,7 +25,7 @@ class CreateIncidentReportUseCase @Inject constructor(
         }
 
         val now = System.currentTimeMillis()
-        val publicLocation = locationPrivacyService.applyPrecision(
+        val publicLocation = locationPrivacyService.applyPublicPrecision(
             location = input.location,
             precision = input.locationPrecision,
         )

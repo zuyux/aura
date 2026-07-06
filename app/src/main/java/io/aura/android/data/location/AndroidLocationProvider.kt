@@ -1,16 +1,15 @@
 package io.aura.android.data.location
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
-import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.aura.android.domain.location.LastKnownLocationStore
+import io.aura.android.domain.location.LocationPermissionManager
 import io.aura.android.domain.location.LocationProvider
 import io.aura.android.domain.model.AuraLocation
 import io.aura.android.domain.model.LocationPrecision
@@ -21,35 +20,30 @@ import kotlin.coroutines.resume
 
 class AndroidLocationProvider @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val permissionManager: LocationPermissionManager,
+    private val lastKnownLocationStore: LastKnownLocationStore,
 ) : LocationProvider {
     private val locationManager: LocationManager? =
         context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
 
     override suspend fun getCurrentLocation(): AuraLocation? {
-        if (!hasLocationPermission()) return null
+        if (!permissionManager.hasLocationPermission()) return null
 
-        val provider = bestAvailableProvider() ?: return lastKnownLocation()
+        val provider = bestAvailableProvider() ?: return fallbackLocation()
         val liveLocation = withTimeoutOrNull(LOCATION_TIMEOUT_MILLIS) {
             requestSingleLocation(provider)
         }
 
-        return liveLocation?.toAuraLocation() ?: lastKnownLocation()
+        return liveLocation?.toAuraLocation()?.also { location ->
+            lastKnownLocationStore.saveLastKnownLocation(location)
+        } ?: fallbackLocation()
     }
-
-    private fun hasLocationPermission(): Boolean =
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ) == PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-            ) == PackageManager.PERMISSION_GRANTED
 
     private fun bestAvailableProvider(): String? {
         val manager = locationManager ?: return null
         return when {
-            manager.isProviderEnabled(LocationManager.GPS_PROVIDER) -> LocationManager.GPS_PROVIDER
+            permissionManager.hasPreciseLocationPermission() &&
+                manager.isProviderEnabled(LocationManager.GPS_PROVIDER) -> LocationManager.GPS_PROVIDER
             manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) -> LocationManager.NETWORK_PROVIDER
             else -> null
         }
@@ -58,10 +52,25 @@ class AndroidLocationProvider @Inject constructor(
     @SuppressLint("MissingPermission")
     private fun lastKnownLocation(): AuraLocation? {
         val manager = locationManager ?: return null
-        return listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
-            .mapNotNull { provider -> manager.getLastKnownLocation(provider) }
+        val providers = buildList {
+            if (permissionManager.hasPreciseLocationPermission()) add(LocationManager.GPS_PROVIDER)
+            add(LocationManager.NETWORK_PROVIDER)
+        }
+        return providers
+            .mapNotNull { provider ->
+                runCatching { manager.getLastKnownLocation(provider) }.getOrNull()
+            }
             .maxByOrNull { location -> location.time }
             ?.toAuraLocation()
+    }
+
+    private suspend fun fallbackLocation(): AuraLocation? {
+        val systemLocation = lastKnownLocation()
+        if (systemLocation != null) {
+            lastKnownLocationStore.saveLastKnownLocation(systemLocation)
+            return systemLocation
+        }
+        return lastKnownLocationStore.getLastKnownLocation()
     }
 
     @Suppress("DEPRECATION")
@@ -88,7 +97,12 @@ class AndroidLocationProvider @Inject constructor(
             }
 
             continuation.invokeOnCancellation { manager.removeUpdates(listener) }
-            manager.requestSingleUpdate(provider, listener, Looper.getMainLooper())
+            runCatching {
+                manager.requestSingleUpdate(provider, listener, Looper.getMainLooper())
+            }.onFailure {
+                manager.removeUpdates(listener)
+                if (continuation.isActive) continuation.resume(null)
+            }
         }
 
     private fun Location.toAuraLocation(): AuraLocation =

@@ -15,6 +15,12 @@ interface SafetySessionDao {
     @Query("SELECT * FROM safety_session_updates WHERE sessionId = :sessionId ORDER BY createdAtMillis DESC")
     fun observeUpdates(sessionId: String): Flow<List<SafetySessionUpdateEntity>>
 
+    @Query("SELECT * FROM safety_sessions WHERE id = :id")
+    suspend fun getSession(id: String): SafetySessionEntity?
+
+    @Query("SELECT * FROM safety_session_updates WHERE id = :id")
+    suspend fun getUpdate(id: String): SafetySessionUpdateEntity?
+
     @Upsert
     suspend fun upsert(session: SafetySessionEntity)
 

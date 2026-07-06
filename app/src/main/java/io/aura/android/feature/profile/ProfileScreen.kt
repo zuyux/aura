@@ -6,15 +6,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AddAlert
+import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,11 +37,25 @@ import io.aura.android.domain.model.UserProfile
 @Composable
 fun ProfileScreen(
     profile: UserProfile?,
+    anonymousModeDefault: Boolean,
+    onAnonymousModeDefaultChanged: (Boolean) -> Unit,
+    offlineModeEnabled: Boolean,
+    onOfflineModeChanged: (Boolean) -> Unit,
+    notificationsEnabled: Boolean,
+    onNotificationsEnabledChanged: (Boolean) -> Unit,
+    guardianInviteNotificationsEnabled: Boolean,
+    onGuardianInviteNotificationsChanged: (Boolean) -> Unit,
+    sosAlertNotificationsEnabled: Boolean,
+    onSosAlertNotificationsChanged: (Boolean) -> Unit,
+    privacyDisclaimerAccepted: Boolean,
+    appVersion: String,
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             AuraSectionHeader(
@@ -47,6 +71,70 @@ fun ProfileScreen(
                 label = "Telefono",
                 value = profile?.phoneNumber.orEmpty().ifBlank { "Sin telefono" },
                 icon = Icons.Outlined.Phone,
+            )
+            AuraSectionHeader(
+                title = "Configuracion",
+                subtitle = "Preferencias locales para los reportes nuevos.",
+            )
+            ProfileSwitchRow(
+                label = "Modo anonimo por defecto",
+                value = "Los nuevos reportes ocultaran tu identidad inicialmente.",
+                icon = Icons.Outlined.VisibilityOff,
+                checked = anonymousModeDefault,
+                onCheckedChange = onAnonymousModeDefaultChanged,
+            )
+            ProfileSwitchRow(
+                label = "Modo offline",
+                value = "Pausa consultas remotas y conserva cambios en el dispositivo.",
+                icon = Icons.Outlined.CloudOff,
+                checked = offlineModeEnabled,
+                onCheckedChange = onOfflineModeChanged,
+            )
+            AuraSectionHeader(
+                title = "Notificaciones",
+                subtitle = "Elige que avisos aparecen en Inicio.",
+            )
+            ProfileSwitchRow(
+                label = "Notificaciones",
+                value = "Muestra avisos y solicitudes pendientes dentro de AURA.",
+                icon = Icons.Outlined.Notifications,
+                checked = notificationsEnabled,
+                onCheckedChange = onNotificationsEnabledChanged,
+            )
+            ProfileSwitchRow(
+                label = "Invitaciones Guardian",
+                value = "Avisa cuando alguien te agregue a su Red Guardian.",
+                icon = Icons.Outlined.PersonAdd,
+                checked = notificationsEnabled && guardianInviteNotificationsEnabled,
+                enabled = notificationsEnabled,
+                onCheckedChange = onGuardianInviteNotificationsChanged,
+            )
+            ProfileSwitchRow(
+                label = "Alertas SOS",
+                value = "Avisa cuando un contacto de confianza active SOS.",
+                icon = Icons.Outlined.AddAlert,
+                checked = notificationsEnabled && sosAlertNotificationsEnabled,
+                enabled = notificationsEnabled,
+                onCheckedChange = onSosAlertNotificationsChanged,
+            )
+            AuraSectionHeader(
+                title = "Acerca de",
+                subtitle = "Informacion de la aplicacion y documentos publicos.",
+            )
+            ProfileInfoRow(
+                label = "Aviso de privacidad",
+                value = if (privacyDisclaimerAccepted) "Aceptado" else "Pendiente",
+                icon = Icons.Outlined.Security,
+            )
+            ProfileInfoRow(
+                label = "Version",
+                value = appVersion,
+                icon = Icons.Outlined.Info,
+            )
+            ProfileInfoRow(
+                label = "Politica de privacidad",
+                value = "Enlace pendiente para el MVP 0.1",
+                icon = Icons.Outlined.VisibilityOff,
             )
         }
     }
@@ -82,6 +170,55 @@ private fun ProfileInfoRow(
                     fontWeight = FontWeight.SemiBold,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ProfileSwitchRow(
+    label: String,
+    value: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (enabled) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
         }
     }
 }

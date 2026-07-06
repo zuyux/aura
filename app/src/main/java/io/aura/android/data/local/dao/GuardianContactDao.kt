@@ -11,6 +11,15 @@ interface GuardianContactDao {
     @Query("SELECT * FROM guardian_contacts ORDER BY isPrimary DESC, displayName ASC")
     fun observeContacts(): Flow<List<GuardianContactEntity>>
 
+    @Query("SELECT * FROM guardian_contacts ORDER BY isPrimary DESC, displayName ASC")
+    suspend fun getContacts(): List<GuardianContactEntity>
+
+    @Query("SELECT * FROM guardian_contacts WHERE id = :contactId")
+    suspend fun getContact(contactId: String): GuardianContactEntity?
+
+    @Query("DELETE FROM guardian_contacts WHERE id = :contactId")
+    suspend fun deleteContact(contactId: String)
+
     @Upsert
     suspend fun upsert(contact: GuardianContactEntity)
 }

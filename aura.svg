@@ -7,11 +7,56 @@
    width="512"
    height="512"
    viewBox="0 0 512 512"
+   sodipodi:docname="aura.svg"
+   inkscape:version="1.4.4 (1:1.4.4+202605061436+dcaf3e7d9e)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="0.94512333"
+     inkscape:cx="222.19322"
+     inkscape:cy="316.88986"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1" />
   <defs
      id="defs1">
+    <linearGradient
+       id="linearGradient7"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop7" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop8" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6">
+      <stop
+         style="stop-color:#0047d9;stop-opacity:0.35144743;"
+         offset="0"
+         id="stop5" />
+      <stop
+         style="stop-color:#008eff;stop-opacity:0.45308012;"
+         offset="1"
+         id="stop6" />
+    </linearGradient>
     <linearGradient
        id="linearGradient3">
       <stop
@@ -26,23 +71,23 @@
     <linearGradient
        id="linearGradient1">
       <stop
-         style="stop-color:#0047d9;stop-opacity:1;"
+         style="stop-color:#0047d9;stop-opacity:0.35144743;"
          offset="0"
          id="stop1" />
       <stop
-         style="stop-color:#00ffff;stop-opacity:1;"
+         style="stop-color:#00ffff;stop-opacity:0.45308012;"
          offset="1"
          id="stop2" />
     </linearGradient>
     <linearGradient
-       xlink:href="#linearGradient1"
+       xlink:href="#linearGradient6"
        id="linearGradient2"
        x1="111.51255"
        y1="627"
        x2="1142.4874"
        y2="627"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.38798227,0,0,0.38798227,12.735093,12.7351)" />
+       gradientTransform="matrix(0.37821691,0,0,0.37821691,18.857975,18.857982)" />
     <radialGradient
        xlink:href="#linearGradient3"
        id="radialGradient4"
@@ -52,21 +97,47 @@
        fy="627"
        r="392.04135"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.34435141,0,0,0.34435141,40.091653,40.091652)" />
+       gradientTransform="matrix(0.42470009,0,0,0.42470009,-10.286964,-10.286965)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1"
+       id="linearGradient4"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.31202895,0,0,0.31202895,60.35783,60.35783)"
+       x1="111.51255"
+       y1="627"
+       x2="1142.4874"
+       y2="627" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient7"
+       id="radialGradient8"
+       cx="256"
+       cy="256"
+       fx="256"
+       fy="256"
+       r="166.5"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <g
      id="g1">
     <circle
-       style="fill:url(#radialGradient4);stroke-width:63.0473;stroke-linecap:square;paint-order:stroke fill markers"
-       id="path1"
-       cx="256"
-       cy="256"
-       r="135" />
-    <circle
-       style="fill:none;stroke:url(#linearGradient2);stroke-width:25.6722;stroke-linecap:square;stroke-dasharray:none;paint-order:stroke fill markers"
+       style="fill:none;stroke:url(#linearGradient2);stroke-width:35.0939;stroke-linecap:square;stroke-dasharray:none;paint-order:stroke fill markers"
        id="path1-3"
        cx="256"
        cy="256"
-       r="187.16389" />
+       r="182.45305" />
+    <circle
+       style="fill:none;stroke:url(#linearGradient4);stroke-width:28.9525;stroke-linecap:square;stroke-dasharray:none;paint-order:stroke fill markers"
+       id="path1-3-6"
+       cx="256"
+       cy="256"
+       r="150.52377" />
+    <circle
+       style="fill:url(#radialGradient4);stroke-width:77.7583;stroke-linecap:square;paint-order:stroke fill markers;stroke:url(#radialGradient8)"
+       id="path1"
+       cx="256"
+       cy="256"
+       r="166.5" />
   </g>
 </svg>

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.ContactsContract
 import java.util.Locale
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,7 +28,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ContactPhone
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Sms
 import androidx.compose.material.icons.outlined.StopCircle
@@ -36,7 +39,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -63,6 +69,7 @@ import io.aura.android.core.ui.components.AuraEmptyState
 import io.aura.android.core.ui.components.AuraSectionHeader
 import io.aura.android.core.ui.theme.AuraGreen
 import io.aura.android.core.ui.theme.AuraRed
+import io.aura.android.data.location.AndroidLocationPermissionManager
 import io.aura.android.domain.model.GuardianContact
 import io.aura.android.domain.model.SafetySession
 import io.aura.android.domain.model.SafetySessionStatus
@@ -74,16 +81,23 @@ fun GuardianScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val locationPermissionManager = remember(context) {
+        AndroidLocationPermissionManager(context.applicationContext)
+    }
     var showLocationRationale by remember { mutableStateOf(false) }
     var showContactsRationale by remember { mutableStateOf(false) }
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
-        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        val granted = permissions.values.any { it }
         if (granted) {
             viewModel.shareLocation()
         }
+    }
+    val sosPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) {
+        viewModel.triggerSos()
     }
     val contactPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -125,12 +139,7 @@ fun GuardianScreen(
                 TextButton(
                     onClick = {
                         showLocationRationale = false
-                        locationPermissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                            ),
-                        )
+                        locationPermissionLauncher.launch(locationPermissionManager.locationPermissions)
                     },
                 ) {
                     Text("Continuar")
@@ -190,10 +199,14 @@ fun GuardianScreen(
 
             Button(
                 onClick = {
-                    if (uiState.hasActiveSession) {
+                    if (context.hasSosPermissions(locationPermissionManager)) {
                         viewModel.triggerSos()
                     } else {
-                        viewModel.startSession()
+                        sosPermissionLauncher.launch(
+                            locationPermissionManager.locationPermissions +
+                                Manifest.permission.SEND_SMS +
+                                notificationPermission(),
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -205,14 +218,14 @@ fun GuardianScreen(
             ) {
                 Icon(imageVector = Icons.Outlined.Shield, contentDescription = null)
                 Text(
-                    text = if (uiState.hasActiveSession) "Activar SOS" else "Iniciar sesion",
+                    text = "Activar SOS",
                     modifier = Modifier.padding(start = 8.dp),
                 )
             }
 
             Button(
                 onClick = {
-                    if (context.hasLocationPermission()) {
+                    if (locationPermissionManager.hasLocationPermission()) {
                         viewModel.shareLocation()
                     } else {
                         showLocationRationale = true
@@ -308,7 +321,10 @@ fun GuardianScreen(
                 onAddContact = viewModel::addContact,
             )
 
-            ContactsSection(contacts = uiState.contacts)
+            ContactsSection(
+                contacts = uiState.contacts,
+                onRemoveContact = viewModel::removeContact,
+            )
         }
     }
 }
@@ -478,8 +494,48 @@ private fun AddContactCard(
 @Composable
 private fun ContactsSection(
     contacts: List<GuardianContact>,
+    onRemoveContact: (GuardianContact) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var contactPendingRemoval by remember { mutableStateOf<GuardianContact?>(null) }
+
+    contactPendingRemoval?.let { contact ->
+        AlertDialog(
+            onDismissRequest = { contactPendingRemoval = null },
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null,
+                    tint = AuraRed,
+                )
+            },
+            title = { Text("Eliminar contacto") },
+            text = {
+                Text("Quieres eliminar a ${contact.displayName} de tu Red Guardian?")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onRemoveContact(contact)
+                        contactPendingRemoval = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AuraRed,
+                        contentColor = Color.White,
+                    ),
+                ) {
+                    Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
+                    Text(text = "Eliminar", modifier = Modifier.padding(start = 8.dp))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { contactPendingRemoval = null }) {
+                    Text("Cancelar")
+                }
+            },
+        )
+    }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -493,7 +549,10 @@ private fun ContactsSection(
             )
         } else {
             contacts.forEach { contact ->
-                ContactRow(contact = contact)
+                ContactRow(
+                    contact = contact,
+                    onRemoveClick = { contactPendingRemoval = contact },
+                )
             }
         }
     }
@@ -502,8 +561,11 @@ private fun ContactsSection(
 @Composable
 private fun ContactRow(
     contact: GuardianContact,
+    onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -529,6 +591,34 @@ private fun ContactRow(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+            Box {
+                IconButton(onClick = { menuExpanded = true }) {
+                    Icon(
+                        imageVector = Icons.Outlined.MoreVert,
+                        contentDescription = "Opciones de contacto",
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Eliminar") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = null,
+                                tint = AuraRed,
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onRemoveClick()
+                        },
+                    )
+                }
             }
         }
     }
@@ -564,16 +654,28 @@ private fun ContactAvatar(
     }
 }
 
-private fun Context.hasLocationPermission(): Boolean {
-    val fineLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-    val coarseLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-    return fineLocation == PackageManager.PERMISSION_GRANTED || coarseLocation == PackageManager.PERMISSION_GRANTED
-}
-
 private fun Context.hasContactsPermission(): Boolean {
     val contacts = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
     return contacts == PackageManager.PERMISSION_GRANTED
 }
+
+private fun Context.hasSosPermissions(locationPermissionManager: AndroidLocationPermissionManager): Boolean {
+    val sms = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+    return locationPermissionManager.hasLocationPermission() &&
+        sms == PackageManager.PERMISSION_GRANTED &&
+        hasNotificationPermission()
+}
+
+private fun Context.hasNotificationPermission(): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+private fun notificationPermission(): Array<String> =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+    } else {
+        emptyArray()
+    }
 
 private fun phoneContactPickerIntent(): Intent =
     Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)

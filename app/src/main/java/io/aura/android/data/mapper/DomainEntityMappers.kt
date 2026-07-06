@@ -3,6 +3,7 @@ package io.aura.android.data.mapper
 import io.aura.android.data.local.entity.AlertEntity
 import io.aura.android.data.local.entity.DeviceIdentityEntity
 import io.aura.android.data.local.entity.GuardianContactEntity
+import io.aura.android.data.local.entity.GuardianNotificationEntity
 import io.aura.android.data.local.entity.IncidentEvidenceEntity
 import io.aura.android.data.local.entity.IncidentReportEntity
 import io.aura.android.data.local.entity.ReportVerificationEntity
@@ -14,6 +15,7 @@ import io.aura.android.domain.model.Alert
 import io.aura.android.domain.model.AuraLocation
 import io.aura.android.domain.model.DeviceIdentity
 import io.aura.android.domain.model.GuardianContact
+import io.aura.android.domain.model.GuardianNotification
 import io.aura.android.domain.model.IncidentEvidence
 import io.aura.android.domain.model.IncidentReport
 import io.aura.android.domain.model.ReportVerification
@@ -84,6 +86,7 @@ fun IncidentEvidenceEntity.toDomain() = IncidentEvidence(
     type = type,
     localUri = localUri,
     remoteUrl = remoteUrl,
+    sha256Hash = sha256Hash,
     visibility = visibility,
     createdAtMillis = createdAtMillis,
 )
@@ -94,6 +97,7 @@ fun IncidentEvidence.toEntity() = IncidentEvidenceEntity(
     type = type,
     localUri = localUri,
     remoteUrl = remoteUrl,
+    sha256Hash = sha256Hash,
     visibility = visibility,
     createdAtMillis = createdAtMillis,
 )
@@ -156,6 +160,38 @@ fun GuardianContact.toEntity() = GuardianContactEntity(
     photoUri = photoUri,
     isPrimary = isPrimary,
     createdAtMillis = createdAtMillis,
+)
+
+fun GuardianNotificationEntity.toDomain() = GuardianNotification(
+    id = id,
+    type = type,
+    status = status,
+    senderName = senderName,
+    senderPhoneNumber = senderPhoneNumber,
+    senderPhotoUri = senderPhotoUri,
+    message = message,
+    sessionId = sessionId,
+    latitude = latitude,
+    longitude = longitude,
+    createdAtMillis = createdAtMillis,
+    readAtMillis = readAtMillis,
+    respondedAtMillis = respondedAtMillis,
+)
+
+fun GuardianNotification.toEntity() = GuardianNotificationEntity(
+    id = id,
+    type = type,
+    status = status,
+    senderName = senderName,
+    senderPhoneNumber = senderPhoneNumber,
+    senderPhotoUri = senderPhotoUri,
+    message = message,
+    sessionId = sessionId,
+    latitude = latitude,
+    longitude = longitude,
+    createdAtMillis = createdAtMillis,
+    readAtMillis = readAtMillis,
+    respondedAtMillis = respondedAtMillis,
 )
 
 fun SafetySessionEntity.toDomain() = SafetySession(
