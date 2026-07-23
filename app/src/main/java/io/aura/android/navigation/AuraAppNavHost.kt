@@ -79,6 +79,7 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
                 uiState = profileUiState,
                 onNameChanged = profileViewModel::onNameChanged,
                 onPhoneNumberChanged = profileViewModel::onPhoneNumberChanged,
+                onSendSmsCode = profileViewModel::sendSmsCode,
                 onSmsCodeChanged = profileViewModel::onSmsCodeChanged,
                 onSmsCodeDetected = profileViewModel::onSmsCodeDetected,
                 onSmsPermissionDenied = profileViewModel::onSmsPermissionDenied,

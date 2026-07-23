@@ -54,6 +54,18 @@ El proyecto usa Kotlin, Jetpack Compose, Material 3, Gradle Kotlin DSL y el paqu
 
 ### Configuracion del servidor
 
+Para Supabase, agrega estas variables a `.env.local` en la raiz del proyecto
+(el archivo esta ignorado por Git):
+
+```properties
+SUPABASE_URL=https://TU_PROJECT_REF.supabase.co
+SUPABASE_PUBLISHABLE_KEY=TU_PUBLISHABLE_KEY
+```
+
+Tambien se pueden definir como variables de entorno del sistema. Usa
+la clave publishable (o la `anon` legacy) en Android; nunca incluyas la clave
+`service_role` en la aplicacion.
+
 La app lee la URL base del API desde `BuildConfig.AURA_API_BASE_URL`.
 
 ```bash

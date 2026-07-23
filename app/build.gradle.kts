@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,18 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+
+val localEnvironment = Properties().apply {
+    val environmentFile = rootProject.file(".env.local")
+    if (environmentFile.exists()) {
+        environmentFile.inputStream().use { load(it) }
+    }
+}
+
+fun environmentValue(name: String): String =
+    localEnvironment.getProperty(name)
+        ?: providers.environmentVariable(name).orNull
+        ?: ""
 
 fun normalizeBaseUrl(value: String): String {
     val trimmed = value.trim()
@@ -29,6 +43,11 @@ val googleMapsApiKey = providers.gradleProperty("AURA_GOOGLE_MAPS_API_KEY")
     .orElse(providers.environmentVariable("AURA_GOOGLE_MAPS_API_KEY"))
     .orElse("")
 
+val supabaseUrl = normalizeBaseUrl(environmentValue("SUPABASE_URL").ifBlank {
+    "https://example.supabase.co/"
+})
+val supabasePublishableKey = environmentValue("SUPABASE_PUBLISHABLE_KEY")
+
 android {
     namespace = "io.aura.android"
     compileSdk = 34
@@ -42,6 +61,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey.get()
+        buildConfigField("String", "AURA_SUPABASE_URL", buildConfigString(supabaseUrl))
+        buildConfigField("String", "AURA_SUPABASE_PUBLISHABLE_KEY", buildConfigString(supabasePublishableKey))
     }
 
     buildTypes {
@@ -78,10 +99,11 @@ ksp {
 }
 
 dependencies {
-    implementation(platform(libs.compose.bom))
-    androidTestImplementation(platform(libs.compose.bom))
+    implementation(enforcedPlatform(libs.compose.bom))
+    androidTestImplementation(enforcedPlatform(libs.compose.bom))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.browser)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -108,9 +130,31 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.libphonenumber)
     implementation(libs.maps.compose)
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.postgrest)
+    implementation(libs.ktor.client.android)
+
+    constraints {
+        implementation(libs.androidx.core.ktx) {
+            version { strictly(libs.versions.coreKtx.get()) }
+        }
+        implementation(libs.androidx.lifecycle.runtime.ktx) {
+            version { strictly(libs.versions.lifecycle.get()) }
+        }
+        implementation(libs.androidx.lifecycle.runtime.compose) {
+            version { strictly(libs.versions.lifecycle.get()) }
+        }
+        implementation(libs.androidx.lifecycle.viewmodel.compose) {
+            version { strictly(libs.versions.lifecycle.get()) }
+        }
+        implementation(libs.androidx.browser) {
+            version { strictly("1.8.0") }
+        }
+    }
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

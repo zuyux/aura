@@ -328,7 +328,6 @@ class AuraComposeUiTest {
             recordedAction = action
         }
         override suspend fun refreshNearbyAlerts(location: AuraLocation, radiusMeters: Int) = Unit
-        override suspend fun seedDemoAlertsIfEmpty() = Unit
     }
 
     private class FakeGuardianRepository(

@@ -41,7 +41,6 @@ class AlertsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            alertRepository.seedDemoAlertsIfEmpty()
             refreshNearbyAlerts()
         }
     }

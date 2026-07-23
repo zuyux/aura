@@ -49,6 +49,7 @@ fun OnboardingScreen(
     uiState: ProfileUiState,
     onNameChanged: (String) -> Unit,
     onPhoneNumberChanged: (String) -> Unit,
+    onSendSmsCode: () -> Unit,
     onSmsCodeChanged: (String) -> Unit,
     onSmsCodeDetected: (String) -> Unit,
     onSmsPermissionDenied: () -> Unit,
@@ -146,14 +147,28 @@ fun OnboardingScreen(
                 label = { Text("Nombre") },
                 singleLine = true,
             )
-            OutlinedTextField(
+            CountryPhoneInput(
                 value = uiState.phoneNumber,
                 onValueChange = onPhoneNumberChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Telefono") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             )
+
+            Button(
+                onClick = onSendSmsCode,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isSendingSms && uiState.smsResendSecondsRemaining == 0,
+            ) {
+                Icon(imageVector = Icons.Outlined.Sms, contentDescription = null)
+                Text(
+                    text = when {
+                        uiState.isSendingSms -> "Enviando código..."
+                        uiState.smsResendSecondsRemaining > 0 ->
+                            "Reenviar código en ${uiState.smsResendSecondsRemaining} s"
+                        uiState.smsCodeSent -> "Reenviar código"
+                        else -> "Enviar código"
+                    },
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
 
             Button(
                 onClick = {

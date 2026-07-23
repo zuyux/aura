@@ -6,8 +6,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.aura.android.BuildConfig
-import io.aura.android.data.remote.api.AlertApi
 import io.aura.android.data.remote.api.SyncApi
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
 import java.net.Proxy
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -39,17 +41,22 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideSupabaseClient(): SupabaseClient =
+        createSupabaseClient(
+            supabaseUrl = BuildConfig.AURA_SUPABASE_URL,
+            supabaseKey = BuildConfig.AURA_SUPABASE_PUBLISHABLE_KEY,
+        ) {
+            install(Postgrest)
+        }
+
+    @Provides
+    @Singleton
     fun provideRetrofit(json: Json, okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
             .baseUrl(BuildConfig.AURA_API_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
-
-    @Provides
-    @Singleton
-    fun provideAlertApi(retrofit: Retrofit): AlertApi =
-        retrofit.create(AlertApi::class.java)
 
     @Provides
     @Singleton

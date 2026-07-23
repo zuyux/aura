@@ -4,15 +4,19 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateReportRequestDto(
+    @kotlinx.serialization.SerialName("id")
     val clientId: String,
     val type: String,
     val severity: String,
     val description: String?,
     val latitude: Double,
     val longitude: Double,
+    @kotlinx.serialization.SerialName("location_precision")
     val locationPrecision: String,
+    @kotlinx.serialization.SerialName("occurred_at_millis")
     val occurredAtMillis: Long,
     val visibility: String,
+    @kotlinx.serialization.SerialName("is_anonymous")
     val anonymous: Boolean,
 )
 

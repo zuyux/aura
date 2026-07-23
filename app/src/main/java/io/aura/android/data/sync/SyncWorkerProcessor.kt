@@ -24,6 +24,7 @@ import io.aura.android.data.remote.dto.SyncSafetySessionRequestDto
 import io.aura.android.data.remote.dto.SyncSafetySessionUpdateRequestDto
 import io.aura.android.data.remote.dto.UpdateSafetySessionRequestDto
 import io.aura.android.data.remote.dto.UploadEvidenceRequestDto
+import io.aura.android.data.remote.IncidentRemoteDataSource
 import io.aura.android.domain.location.LastKnownLocationStore
 import io.aura.android.domain.model.GuardianNotification
 import io.aura.android.domain.model.GuardianNotificationStatus
@@ -54,8 +55,9 @@ class SyncWorkerProcessor(
 
             val report = dependencies.incidentReportDao().getReport(item.entityId)
                 ?: error("No local report found for ${item.entityId}")
-            mapNetworkErrors { dependencies.syncApi().createReport(
-                CreateReportRequestDto(
+            mapNetworkErrors {
+                dependencies.incidentRemoteDataSource().createReport(
+                    CreateReportRequestDto(
                     clientId = report.id,
                     type = report.type.name,
                     severity = report.severity.name,
@@ -66,8 +68,9 @@ class SyncWorkerProcessor(
                     occurredAtMillis = report.createdAtMillis,
                     visibility = report.visibility.name,
                     anonymous = report.isAnonymous,
-                ),
-            ) }
+                    ),
+                )
+            }
             transactionRunner {
                 dependencies.incidentReportDao().updateStatus(
                     id = report.id,
@@ -338,6 +341,7 @@ interface SyncWorkerDependencies {
     fun guardianNotificationDao(): GuardianNotificationDao
     fun incidentEvidenceDao(): IncidentEvidenceDao
     fun incidentReportDao(): IncidentReportDao
+    fun incidentRemoteDataSource(): IncidentRemoteDataSource
     fun lastKnownLocationStore(): LastKnownLocationStore
     fun networkMonitor(): NetworkMonitor
     fun reportVerificationDao(): ReportVerificationDao

@@ -17,7 +17,6 @@ import io.aura.android.data.local.entity.SyncQueueEntity
 import io.aura.android.data.local.entity.UserProfileEntity
 import io.aura.android.data.network.NetworkMonitor
 import io.aura.android.data.remote.api.SyncApi
-import io.aura.android.data.remote.dto.CreateReportResponseDto
 import io.aura.android.data.remote.dto.GuardianNotificationDto
 import io.aura.android.data.remote.dto.UploadEvidenceResponseDto
 import io.aura.android.domain.location.LastKnownLocationStore
@@ -42,6 +41,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.aura.android.data.remote.IncidentRemoteDataSource
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -50,6 +50,7 @@ class SyncWorkerProcessorTest {
     private val networkMonitor = mockk<NetworkMonitor>()
     private val syncQueueManager = mockk<SyncQueueManager>(relaxUnitFun = true)
     private val syncApi = mockk<SyncApi>(relaxUnitFun = true)
+    private val incidentRemoteDataSource = mockk<IncidentRemoteDataSource>(relaxUnitFun = true)
     private val incidentReportDao = mockk<IncidentReportDao>(relaxUnitFun = true)
     private val incidentEvidenceDao = mockk<IncidentEvidenceDao>(relaxUnitFun = true)
     private val alertRepository = mockk<AlertRepository>(relaxUnitFun = true)
@@ -66,6 +67,7 @@ class SyncWorkerProcessorTest {
         networkMonitor = networkMonitor,
         safetySessionDao = safetySessionDao,
         syncApi = syncApi,
+        incidentRemoteDataSource = incidentRemoteDataSource,
         syncQueueManager = syncQueueManager,
         userProfileDao = userProfileDao,
     )
@@ -87,11 +89,10 @@ class SyncWorkerProcessorTest {
         coEvery { syncQueueManager.nextItems(listOf(SyncEntityTypes.INCIDENT_REPORT, SyncEntityTypes.REPORT_VERIFICATION)) } returns
             listOf(syncItem(id = "sync-report", entityType = SyncEntityTypes.INCIDENT_REPORT, entityId = "report-1"))
         coEvery { incidentReportDao.getReport("report-1") } returns incidentReport("report-1")
-        coEvery { syncApi.createReport(any()) } returns CreateReportResponseDto()
-
         val result = processor.syncReports()
 
         assertEquals(Result.success(), result)
+        coVerify { incidentRemoteDataSource.createReport(match { it.clientId == "report-1" }) }
         coVerify { syncQueueManager.resetInterruptedWork() }
         coVerify { syncQueueManager.markRunning("sync-report") }
         coVerify { incidentReportDao.updateStatus("report-1", ReportStatus.SUBMITTED, any()) }
@@ -279,6 +280,7 @@ private class FakeSyncWorkerDependencies(
     private val guardianNotificationDao: GuardianNotificationDao = mockk(),
     private val incidentEvidenceDao: IncidentEvidenceDao = mockk(),
     private val incidentReportDao: IncidentReportDao = mockk(),
+    private val incidentRemoteDataSource: IncidentRemoteDataSource = mockk(relaxUnitFun = true),
     private val lastKnownLocationStore: LastKnownLocationStore = mockk(),
     private val networkMonitor: NetworkMonitor = mockk(),
     private val reportVerificationDao: ReportVerificationDao = mockk(),
@@ -293,6 +295,7 @@ private class FakeSyncWorkerDependencies(
     override fun guardianNotificationDao() = guardianNotificationDao
     override fun incidentEvidenceDao() = incidentEvidenceDao
     override fun incidentReportDao() = incidentReportDao
+    override fun incidentRemoteDataSource() = incidentRemoteDataSource
     override fun lastKnownLocationStore() = lastKnownLocationStore
     override fun networkMonitor() = networkMonitor
     override fun reportVerificationDao() = reportVerificationDao

@@ -32,6 +32,8 @@ captures/
 *.class
 
 # Signing and secrets
+.env
+.env.*
 *.jks
 *.keystore
 *.p12

@@ -13,6 +13,8 @@ import io.aura.android.data.repository.OfflineFirstDeviceIdentityRepository
 import io.aura.android.data.repository.OfflineFirstIncidentEvidenceRepository
 import io.aura.android.data.repository.OfflineFirstGuardianRepository
 import io.aura.android.data.repository.OfflineFirstIncidentReportRepository
+import io.aura.android.data.remote.IncidentRemoteDataSource
+import io.aura.android.data.remote.SupabaseIncidentRemoteDataSource
 import io.aura.android.data.repository.OfflineFirstUserProfileRepository
 import io.aura.android.data.security.AndroidKeystoreLocalKeyStore
 import io.aura.android.domain.location.LastKnownLocationStore
@@ -30,6 +32,11 @@ import io.aura.android.domain.security.LocalKeyStore
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+    @Binds
+    abstract fun bindIncidentRemoteDataSource(
+        source: SupabaseIncidentRemoteDataSource,
+    ): IncidentRemoteDataSource
+
     @Binds
     abstract fun bindAlertRepository(
         repository: OfflineFirstAlertRepository,

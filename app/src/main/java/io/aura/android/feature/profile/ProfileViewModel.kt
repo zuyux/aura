@@ -8,6 +8,8 @@ import io.aura.android.domain.repository.ProfileSettingsRepository
 import io.aura.android.domain.repository.UserProfileRepository
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +23,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+    private var smsResendTimerJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -72,7 +75,63 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onPhoneNumberChanged(value: String) {
-        _uiState.update { it.copy(phoneNumber = value, errorMessage = null, successMessage = null) }
+        val phoneChanged = value != _uiState.value.phoneNumber
+        if (phoneChanged) smsResendTimerJob?.cancel()
+        _uiState.update {
+            it.copy(
+                phoneNumber = value,
+                smsCode = if (phoneChanged) "" else it.smsCode,
+                smsCodeSent = if (phoneChanged) false else it.smsCodeSent,
+                smsResendSecondsRemaining = if (phoneChanged) 0 else it.smsResendSecondsRemaining,
+                errorMessage = null,
+                successMessage = null,
+            )
+        }
+    }
+
+    fun sendSmsCode() {
+        val state = _uiState.value
+        if (state.smsResendSecondsRemaining > 0 || state.isSendingSms) return
+        if (state.phoneNumber.filter(Char::isDigit).length < MIN_PHONE_LENGTH) {
+            _uiState.update { it.copy(errorMessage = "Ingresa un teléfono válido antes de solicitar el código.") }
+            return
+        }
+
+        _uiState.update {
+            it.copy(
+                isSendingSms = true,
+                errorMessage = null,
+                successMessage = null,
+            )
+        }
+
+        viewModelScope.launch {
+            // El backend de autenticación aún no está conectado; conserva aquí el
+            // límite de reenvío para que la UI esté lista para esa integración.
+            _uiState.update {
+                it.copy(
+                    isSendingSms = false,
+                    smsCodeSent = true,
+                    smsResendSecondsRemaining = SMS_RESEND_COOLDOWN_SECONDS,
+                    successMessage = "Código SMS enviado a ${it.phoneNumber}.",
+                )
+            }
+            startSmsResendTimer()
+        }
+    }
+
+    private fun startSmsResendTimer() {
+        smsResendTimerJob?.cancel()
+        smsResendTimerJob = viewModelScope.launch {
+            while (_uiState.value.smsResendSecondsRemaining > 0) {
+                delay(1_000)
+                _uiState.update { current ->
+                    current.copy(
+                        smsResendSecondsRemaining = (current.smsResendSecondsRemaining - 1).coerceAtLeast(0),
+                    )
+                }
+            }
+        }
     }
 
     fun onSmsCodeChanged(value: String) {
@@ -217,6 +276,7 @@ class ProfileViewModel @Inject constructor(
         private const val MIN_PHONE_LENGTH = 7
         private const val MIN_SMS_CODE_LENGTH = 4
         private const val MAX_SMS_CODE_LENGTH = 6
+        private const val SMS_RESEND_COOLDOWN_SECONDS = 30
     }
 }
 
@@ -226,6 +286,9 @@ data class ProfileUiState(
     val name: String = "",
     val phoneNumber: String = "",
     val smsCode: String = "",
+    val smsCodeSent: Boolean = false,
+    val isSendingSms: Boolean = false,
+    val smsResendSecondsRemaining: Int = 0,
     val privacyDisclaimerAccepted: Boolean = false,
     val anonymousModeDefault: Boolean = true,
     val offlineModeEnabled: Boolean = false,

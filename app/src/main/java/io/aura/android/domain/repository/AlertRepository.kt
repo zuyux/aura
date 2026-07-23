@@ -14,5 +14,4 @@ interface AlertRepository {
 
     suspend fun refreshNearbyAlerts(location: AuraLocation, radiusMeters: Int)
 
-    suspend fun seedDemoAlertsIfEmpty()
 }

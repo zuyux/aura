@@ -1,7 +1,5 @@
 package io.aura.android.data.remote.api
 
-import io.aura.android.data.remote.dto.CreateReportRequestDto
-import io.aura.android.data.remote.dto.CreateReportResponseDto
 import io.aura.android.data.remote.dto.CreateVerificationRequestDto
 import io.aura.android.data.remote.dto.GuardianInviteNotificationRequestDto
 import io.aura.android.data.remote.dto.GuardianInviteResponseRequestDto
@@ -21,9 +19,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface SyncApi {
-    @POST("reports")
-    suspend fun createReport(@Body request: CreateReportRequestDto): CreateReportResponseDto
-
     @GET("reports/nearby")
     suspend fun getNearbyReports(
         @Query("lat") latitude: Double,
