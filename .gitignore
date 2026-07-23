@@ -7,6 +7,10 @@ build/
 # Kotlin
 .kotlin/
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Local Android SDK configuration
 local.properties
 
