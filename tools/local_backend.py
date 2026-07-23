@@ -11,6 +11,7 @@ Point the Android app at:
 from __future__ import annotations
 
 import json
+import math
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -35,6 +36,84 @@ def now_millis() -> int:
     return int(time.time() * 1000)
 
 
+def parse_float(value: str | None) -> float | None:
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+def parse_int(value: str | None) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
+
+def distance_meters(
+    origin_latitude: float,
+    origin_longitude: float,
+    target_latitude: float,
+    target_longitude: float,
+) -> int:
+    earth_radius_meters = 6_371_000
+    origin_lat = math.radians(origin_latitude)
+    target_lat = math.radians(target_latitude)
+    delta_lat = math.radians(target_latitude - origin_latitude)
+    delta_lng = math.radians(target_longitude - origin_longitude)
+    haversine = (
+        math.sin(delta_lat / 2) ** 2
+        + math.cos(origin_lat) * math.cos(target_lat) * math.sin(delta_lng / 2) ** 2
+    )
+    return round(earth_radius_meters * 2 * math.atan2(math.sqrt(haversine), math.sqrt(1 - haversine)))
+
+
+def report_to_alert(report_id: str, report: dict, distance: int | None = None) -> dict:
+    occurred_at = int(report.get("occurredAtMillis") or now_millis())
+    description = report.get("description") or "Reporte ciudadano sincronizado desde AURA."
+    return {
+        "id": f"alert:{report_id}",
+        "reportId": report_id,
+        "type": report.get("type") or "OTHER",
+        "severity": report.get("severity") or "MEDIUM",
+        "status": "UNVERIFIED",
+        "latitude": report.get("latitude"),
+        "longitude": report.get("longitude"),
+        "locationPrecision": report.get("locationPrecision") or "APPROXIMATE",
+        "summary": description,
+        "distanceMeters": distance,
+        "reportedAtMillis": occurred_at,
+    }
+
+
+def nearby_alerts(query: dict[str, list[str]]) -> list[dict]:
+    latitude = parse_float(query.get("lat", [None])[0])
+    longitude = parse_float(query.get("lng", [None])[0])
+    radius = parse_int(query.get("radius", [None])[0])
+    alerts = []
+
+    for report_id, report in reports.items():
+        report_latitude = parse_float(str(report.get("latitude")))
+        report_longitude = parse_float(str(report.get("longitude")))
+        if report_latitude is None or report_longitude is None:
+            continue
+
+        distance = None
+        if latitude is not None and longitude is not None:
+            distance = distance_meters(latitude, longitude, report_latitude, report_longitude)
+            if radius is not None and distance > radius:
+                continue
+
+        alerts.append(report_to_alert(report_id, report, distance))
+
+    alerts.sort(key=lambda item: item.get("reportedAtMillis", 0), reverse=True)
+    return alerts
+
+
 def store_notification(phone_number: str | None, notification: dict) -> None:
     key = normalize_phone(phone_number)
     if not key:
@@ -54,7 +133,7 @@ class AuraLocalBackend(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/alerts/nearby":
-            self.respond_json([])
+            self.respond_json(nearby_alerts(query))
             return
 
         if parsed.path == "/guardian-notifications":

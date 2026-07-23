@@ -430,6 +430,51 @@ POST /safety-sessions/{id}/updates
 
 ---
 
+### 21. Prototype functional validation
+
+* [ ] Close the report-to-map sync loop:
+
+  * [X] Update `tools/local_backend.py` so `GET /alerts/nearby` returns stored reports as alert DTOs.
+  * [ ] Add or complete `GET /reports/nearby` in the local backend for report sync parity.
+  * [ ] Confirm a synced incident report is fetched by `AlertFetchWorker`.
+  * [ ] Confirm fetched alerts are saved in the local `Alert` Room table.
+  * [ ] Confirm the synced report appears in both alerts list and map.
+
+* [ ] Verify report database states end to end:
+
+  * [ ] Report starts locally as `PENDING_SYNC` after submit.
+  * [ ] `ReportSyncWorker` posts the report to `POST /reports`.
+  * [ ] Local report status changes to `SUBMITTED` after successful sync.
+  * [ ] Failed sync remains recoverable and visible as pending or failed.
+
+* [ ] Make Red Guardian sync demo reliable:
+
+  * [ ] User A can set local profile name and phone.
+  * [ ] User A can add User B as guardian contact.
+  * [ ] Backend stores and exposes guardian invite notification for User B.
+  * [ ] User B receives guardian invite through notification polling.
+  * [ ] User B can accept or decline the invite.
+  * [ ] User A can trigger SOS and queue guardian notifications.
+  * [ ] User B receives SOS notification with latest available location.
+
+* [ ] Add prototype debug confirmation:
+
+  * [ ] Show or log pending sync count during demo.
+  * [ ] Show or log last synced report ID/status.
+  * [ ] Show or log last fetched alert count.
+  * [ ] Show or log active Red Guardian session state.
+
+* [ ] Run local demo validation:
+
+  * [ ] Start backend with `python3 tools/local_backend.py`.
+  * [ ] Run debug app against `http://10.0.2.2:8080/`.
+  * [ ] Confirm `AURA_GOOGLE_MAPS_API_KEY` is configured for map rendering.
+  * [ ] Create a report and wait for sync.
+  * [ ] Open `Alertas` -> `Mapa` and confirm the report appears.
+  * [ ] Start Red Guardian session, share location, trigger SOS, and confirm notification delivery.
+
+---
+
 Best first milestone:
 
 > User can open AURA, create a local incident report, see it saved as pending sync, and start a basic Red Guardián session.
