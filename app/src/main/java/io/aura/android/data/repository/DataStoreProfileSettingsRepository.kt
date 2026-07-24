@@ -3,9 +3,11 @@ package io.aura.android.data.repository
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.aura.android.domain.model.ProfileSettings
+import io.aura.android.domain.model.ThemeMode
 import io.aura.android.domain.repository.ProfileSettingsRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +27,9 @@ class DataStoreProfileSettingsRepository @Inject constructor(
                 notificationsEnabled = preferences[NOTIFICATIONS_ENABLED] ?: true,
                 guardianInviteNotificationsEnabled = preferences[GUARDIAN_INVITE_NOTIFICATIONS_ENABLED] ?: true,
                 sosAlertNotificationsEnabled = preferences[SOS_ALERT_NOTIFICATIONS_ENABLED] ?: true,
+                themeMode = preferences[THEME_MODE]
+                    ?.let { stored -> runCatching { ThemeMode.valueOf(stored) }.getOrNull() }
+                    ?: ThemeMode.DARK,
             )
         }
 
@@ -64,6 +69,12 @@ class DataStoreProfileSettingsRepository @Inject constructor(
         }
     }
 
+    override suspend fun setThemeMode(themeMode: ThemeMode) {
+        context.profileSettingsDataStore.edit { preferences ->
+            preferences[THEME_MODE] = themeMode.name
+        }
+    }
+
     private companion object {
         val PRIVACY_DISCLAIMER_ACCEPTED = booleanPreferencesKey("privacy_disclaimer_accepted")
         val ANONYMOUS_MODE_DEFAULT = booleanPreferencesKey("anonymous_mode_default")
@@ -71,5 +82,6 @@ class DataStoreProfileSettingsRepository @Inject constructor(
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val GUARDIAN_INVITE_NOTIFICATIONS_ENABLED = booleanPreferencesKey("guardian_invite_notifications_enabled")
         val SOS_ALERT_NOTIFICATIONS_ENABLED = booleanPreferencesKey("sos_alert_notifications_enabled")
+        val THEME_MODE = stringPreferencesKey("theme_mode")
     }
 }

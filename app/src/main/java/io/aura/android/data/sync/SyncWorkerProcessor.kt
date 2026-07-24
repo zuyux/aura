@@ -351,4 +351,4 @@ interface SyncWorkerDependencies {
     fun userProfileDao(): UserProfileDao
 }
 
-private const val DEFAULT_ALERT_RADIUS_METERS = 1_500
+private const val DEFAULT_ALERT_RADIUS_METERS = 1_000

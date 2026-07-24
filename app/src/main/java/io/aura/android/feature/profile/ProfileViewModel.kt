@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.aura.android.domain.model.UserProfile
+import io.aura.android.domain.model.ThemeMode
 import io.aura.android.domain.repository.ProfileSettingsRepository
 import io.aura.android.domain.repository.UserProfileRepository
 import java.util.UUID
@@ -48,6 +49,7 @@ class ProfileViewModel @Inject constructor(
                         notificationsEnabled = settings.notificationsEnabled,
                         guardianInviteNotificationsEnabled = settings.guardianInviteNotificationsEnabled,
                         sosAlertNotificationsEnabled = settings.sosAlertNotificationsEnabled,
+                        themeMode = settings.themeMode,
                     )
                 }
             }
@@ -218,6 +220,19 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun onThemeModeChanged(themeMode: ThemeMode) {
+        _uiState.update { it.copy(themeMode = themeMode, errorMessage = null, successMessage = null) }
+        viewModelScope.launch {
+            runCatching {
+                profileSettingsRepository.setThemeMode(themeMode)
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(errorMessage = error.message ?: "No se pudo guardar el tema.")
+                }
+            }
+        }
+    }
+
     fun completeOnboarding() {
         val state = _uiState.value
         val name = state.name.trim()
@@ -295,6 +310,7 @@ data class ProfileUiState(
     val notificationsEnabled: Boolean = true,
     val guardianInviteNotificationsEnabled: Boolean = true,
     val sosAlertNotificationsEnabled: Boolean = true,
+    val themeMode: ThemeMode = ThemeMode.DARK,
     val isSaving: Boolean = false,
     val errorMessage: String? = null,
     val successMessage: String? = null,

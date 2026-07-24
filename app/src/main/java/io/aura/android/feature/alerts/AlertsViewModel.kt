@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.aura.android.domain.location.LocationProvider
 import io.aura.android.domain.model.Alert
+import io.aura.android.domain.model.AuraLocation
 import io.aura.android.domain.model.IncidentType
 import io.aura.android.domain.repository.AlertRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,16 +22,19 @@ class AlertsViewModel @Inject constructor(
     private val locationProvider: LocationProvider,
 ) : ViewModel() {
     private val selectedFilter = MutableStateFlow(AlertFilter.ALL)
+    private val currentLocation = MutableStateFlow<AuraLocation?>(null)
 
     val uiState: StateFlow<AlertsUiState> = combine(
         alertRepository.observeNearbyAlerts(),
         selectedFilter,
-    ) { alerts, filter ->
+        currentLocation,
+    ) { alerts, filter, location ->
         AlertsUiState(
             isLoading = false,
             alerts = alerts.filter { alert -> filter.matches(alert) },
             selectedFilter = filter,
             totalAlerts = alerts.size,
+            currentLocation = location,
         )
     }
         .stateIn(
@@ -51,7 +55,10 @@ class AlertsViewModel @Inject constructor(
 
     fun refreshNearbyAlerts() {
         viewModelScope.launch {
-            val location = locationProvider.getCurrentLocation() ?: return@launch
+            val location = locationProvider.getCurrentLocation()
+                ?.takeIf { candidate -> candidate.isUsableMapLocation() }
+                ?: return@launch
+            currentLocation.value = location
             alertRepository.refreshNearbyAlerts(
                 location = location,
                 radiusMeters = DEFAULT_ALERT_RADIUS_METERS,
@@ -65,6 +72,7 @@ data class AlertsUiState(
     val alerts: List<Alert> = emptyList(),
     val selectedFilter: AlertFilter = AlertFilter.ALL,
     val totalAlerts: Int = 0,
+    val currentLocation: AuraLocation? = null,
 )
 
 enum class AlertFilter(
@@ -80,4 +88,9 @@ enum class AlertFilter(
     fun matches(alert: Alert): Boolean = this == ALL || alert.type in types
 }
 
-private const val DEFAULT_ALERT_RADIUS_METERS = 1_500
+private const val DEFAULT_ALERT_RADIUS_METERS = 1_000
+
+private fun AuraLocation.isUsableMapLocation(): Boolean =
+    latitude in -90.0..90.0 &&
+        longitude in -180.0..180.0 &&
+        !(kotlin.math.abs(latitude) < 0.0001 && kotlin.math.abs(longitude) < 0.0001)

@@ -3,17 +3,16 @@ package io.aura.android.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AddAlert
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,8 +50,8 @@ private data class BottomDestination(
 
 private val bottomDestinations = listOf(
     BottomDestination(AuraRoute.Home, "Inicio", Icons.Outlined.Home),
-    BottomDestination(AuraRoute.Alerts, "Alertas", Icons.Outlined.Map),
-    BottomDestination(AuraRoute.Guardian, "SOS", Icons.Outlined.AddAlert),
+    BottomDestination(AuraRoute.Alerts, "Alertas", Icons.Outlined.Warning),
+    BottomDestination(AuraRoute.Guardian, "Red guardiana", Icons.Outlined.Shield),
     BottomDestination(AuraRoute.Profile, "Perfil", Icons.Outlined.Person),
 )
 
@@ -120,7 +119,6 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
                                 contentDescription = destination.label,
                             )
                         },
-                        label = { Text(destination.label) },
                     )
                 }
             }
@@ -207,6 +205,8 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
                     onSosAlertNotificationsChanged = profileViewModel::onSosAlertNotificationsChanged,
                     privacyDisclaimerAccepted = profileUiState.privacyDisclaimerAccepted,
                     appVersion = BuildConfig.VERSION_NAME,
+                    themeMode = profileUiState.themeMode,
+                    onThemeModeChanged = profileViewModel::onThemeModeChanged,
                 )
             }
         }

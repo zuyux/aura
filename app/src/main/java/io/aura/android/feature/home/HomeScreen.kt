@@ -178,7 +178,9 @@ fun HomeScreen(
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

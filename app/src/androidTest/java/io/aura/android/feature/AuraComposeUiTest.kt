@@ -25,6 +25,7 @@ import io.aura.android.domain.model.GuardianNotification
 import io.aura.android.domain.model.IncidentType
 import io.aura.android.domain.model.LocationPrecision
 import io.aura.android.domain.model.ProfileSettings
+import io.aura.android.domain.model.ThemeMode
 import io.aura.android.domain.model.SafetySession
 import io.aura.android.domain.model.SafetySessionStatus
 import io.aura.android.domain.model.SafetySessionUpdate
@@ -314,6 +315,7 @@ class AuraComposeUiTest {
         override suspend fun setNotificationsEnabled(enabled: Boolean) = update { copy(notificationsEnabled = enabled) }
         override suspend fun setGuardianInviteNotificationsEnabled(enabled: Boolean) = update { copy(guardianInviteNotificationsEnabled = enabled) }
         override suspend fun setSosAlertNotificationsEnabled(enabled: Boolean) = update { copy(sosAlertNotificationsEnabled = enabled) }
+        override suspend fun setThemeMode(themeMode: ThemeMode) = update { copy(themeMode = themeMode) }
 
         private fun update(block: ProfileSettings.() -> ProfileSettings) {
             settings.value = settings.value.block()

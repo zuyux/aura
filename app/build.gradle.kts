@@ -41,7 +41,7 @@ val auraReleaseApiBaseUrl = providers.gradleProperty("AURA_PRODUCTION_API_BASE_U
 
 val googleMapsApiKey = providers.gradleProperty("AURA_GOOGLE_MAPS_API_KEY")
     .orElse(providers.environmentVariable("AURA_GOOGLE_MAPS_API_KEY"))
-    .orElse("")
+    .orElse(environmentValue("AURA_GOOGLE_MAPS_API_KEY"))
 
 val supabaseUrl = normalizeBaseUrl(environmentValue("SUPABASE_URL").ifBlank {
     "https://example.supabase.co/"
@@ -142,12 +142,14 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.libphonenumber)
     implementation(libs.maps.compose)
+    implementation(libs.osmdroid.android)
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(platform(libs.supabase.bom))

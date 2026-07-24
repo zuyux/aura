@@ -2,6 +2,8 @@ package io.aura.android.feature.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -33,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.aura.android.core.ui.components.AuraSectionHeader
 import io.aura.android.domain.model.UserProfile
+import io.aura.android.domain.model.ThemeMode
 
 @Composable
 fun ProfileScreen(
@@ -49,6 +53,8 @@ fun ProfileScreen(
     onSosAlertNotificationsChanged: (Boolean) -> Unit,
     privacyDisclaimerAccepted: Boolean,
     appVersion: String,
+    themeMode: ThemeMode = ThemeMode.DARK,
+    onThemeModeChanged: (ThemeMode) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -75,6 +81,10 @@ fun ProfileScreen(
             AuraSectionHeader(
                 title = "Configuracion",
                 subtitle = "Preferencias locales para los reportes nuevos.",
+            )
+            ThemeModeSelector(
+                selectedMode = themeMode,
+                onModeSelected = onThemeModeChanged,
             )
             ProfileSwitchRow(
                 label = "Modo anónimo por defecto",
@@ -136,6 +146,50 @@ fun ProfileScreen(
                 value = "Enlace pendiente para el MVP 0.1",
                 icon = Icons.Outlined.VisibilityOff,
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ThemeModeSelector(
+    selectedMode: ThemeMode,
+    onModeSelected: (ThemeMode) -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = "Tema de la aplicación",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ThemeMode.entries.forEach { mode ->
+                    FilterChip(
+                        selected = selectedMode == mode,
+                        onClick = { onModeSelected(mode) },
+                        label = {
+                            Text(
+                                when (mode) {
+                                    ThemeMode.DARK -> "Oscuro"
+                                    ThemeMode.LIGHT -> "Claro"
+                                    ThemeMode.SYSTEM -> "Sistema"
+                                },
+                            )
+                        },
+                    )
+                }
+            }
         }
     }
 }

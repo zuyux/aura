@@ -127,7 +127,7 @@ class SyncWorkerProcessorTest {
         val result = processor.fetchAlerts()
 
         assertEquals(Result.success(), result)
-        coVerify { alertRepository.refreshNearbyAlerts(location = location, radiusMeters = 1_500) }
+        coVerify { alertRepository.refreshNearbyAlerts(location = location, radiusMeters = 1_000) }
     }
 
     @Test

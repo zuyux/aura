@@ -7,4 +7,11 @@ data class ProfileSettings(
     val notificationsEnabled: Boolean = true,
     val guardianInviteNotificationsEnabled: Boolean = true,
     val sosAlertNotificationsEnabled: Boolean = true,
+    val themeMode: ThemeMode = ThemeMode.DARK,
 )
+
+enum class ThemeMode {
+    DARK,
+    LIGHT,
+    SYSTEM,
+}

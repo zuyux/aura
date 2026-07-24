@@ -1,6 +1,7 @@
 package io.aura.android.domain.repository
 
 import io.aura.android.domain.model.ProfileSettings
+import io.aura.android.domain.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 
 interface ProfileSettingsRepository {
@@ -11,4 +12,5 @@ interface ProfileSettingsRepository {
     suspend fun setNotificationsEnabled(enabled: Boolean)
     suspend fun setGuardianInviteNotificationsEnabled(enabled: Boolean)
     suspend fun setSosAlertNotificationsEnabled(enabled: Boolean)
+    suspend fun setThemeMode(themeMode: ThemeMode)
 }

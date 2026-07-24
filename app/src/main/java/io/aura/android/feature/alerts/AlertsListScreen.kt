@@ -1,6 +1,12 @@
 package io.aura.android.feature.alerts
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -21,16 +27,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.core.content.ContextCompat
 import io.aura.android.core.ui.components.AuraEmptyState
 import io.aura.android.core.ui.components.AuraLoadingState
 import io.aura.android.core.ui.components.AuraOfflineBanner
@@ -45,10 +54,57 @@ fun AlertsListScreen(
     modifier: Modifier = Modifier,
     viewModel: AlertsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var displayMode by remember(initialDisplayMode) { mutableStateOf(initialDisplayMode) }
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) { permissions ->
+        if (permissions.values.any { granted -> granted }) {
+            viewModel.refreshNearbyAlerts()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val hasLocationPermission =
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+        if (!hasLocationPermission) {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ),
+            )
+        }
+    }
 
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        if (displayMode == AlertsDisplayMode.MAP) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                AlertsMapScreen(
+                    alerts = uiState.alerts,
+                    currentLocation = uiState.currentLocation,
+                    onAlertClick = onAlertClick,
+                )
+                AlertsModeSelector(
+                    selectedMode = displayMode,
+                    onModeSelected = { displayMode = it },
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(16.dp),
+                )
+                AlertFilterRow(
+                    selectedFilter = uiState.selectedFilter,
+                    onFilterSelected = viewModel::selectFilter,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(horizontal = 12.dp, vertical = 16.dp),
+                )
+            }
+            return@Surface
+        }
+
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
@@ -88,10 +144,6 @@ fun AlertsListScreen(
                     },
                     icon = Icons.Outlined.Shield,
                 )
-                displayMode == AlertsDisplayMode.MAP -> AlertsMapScreen(
-                    alerts = uiState.alerts,
-                    onAlertClick = onAlertClick,
-                )
                 else -> {
                     uiState.alerts.forEach { alert ->
                         AlertListItem(
@@ -110,30 +162,39 @@ fun AlertsListScreen(
 private fun AlertsModeSelector(
     selectedMode: AlertsDisplayMode,
     onModeSelected: (AlertsDisplayMode) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        tonalElevation = 4.dp,
+        shadowElevation = 4.dp,
     ) {
-        AlertsDisplayMode.entries.forEach { mode ->
-            FilterChip(
-                selected = selectedMode == mode,
-                onClick = { onModeSelected(mode) },
-                label = { Text(mode.label) },
-            )
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            AlertsDisplayMode.entries.forEach { mode ->
+                FilterChip(
+                    selected = selectedMode == mode,
+                    onClick = { onModeSelected(mode) },
+                    label = { Text(mode.label) },
+                )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AlertFilterRow(
     selectedFilter: AlertFilter,
     onFilterSelected: (AlertFilter) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    FlowRow(
+    Row(
+        modifier = modifier
+            .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         AlertFilter.entries.forEach { filter ->
             FilterChip(
