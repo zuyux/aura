@@ -3,15 +3,19 @@ package io.aura.android.feature.report
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.AlertDialog
@@ -37,10 +41,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.aura.android.core.ui.components.AuraPrimaryButton
 import io.aura.android.data.location.AndroidLocationPermissionManager
+import io.aura.android.domain.model.AuraLocation
 import io.aura.android.domain.model.IncidentType
 import io.aura.android.domain.model.LocationPrecision
 import io.aura.android.domain.model.SeverityLevel
@@ -72,6 +86,7 @@ private val locationPrecisionOptions = listOf(
 @Composable
 fun ReportIncidentScreen(
     onAddEvidenceClick: (String) -> Unit,
+    onReportSubmitted: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ReportIncidentViewModel = hiltViewModel(),
 ) {
@@ -98,13 +113,20 @@ fun ReportIncidentScreen(
         }
     }
 
+    LaunchedEffect(uiState.savedReportId, uiState.canAddEvidence) {
+        val reportId = uiState.savedReportId
+        if (reportId != null && uiState.canAddEvidence) {
+            onReportSubmitted(reportId)
+        }
+    }
+
     if (showLocationRationale) {
         AlertDialog(
             onDismissRequest = { showLocationRationale = false },
-            title = { Text("Permitir ubicacion") },
+            title = { Text("Permitir ubicación") },
             text = {
                 Text(
-                    "AURA usa tu ubicacion solo para este reporte y guarda una version aproximada o por distrito.",
+                    "AURA usa tu ubicación solo para este reporte y guarda una versión aproximada o por distrito.",
                 )
             },
             confirmButton = {
@@ -178,7 +200,7 @@ internal fun ReportIncidentContent(
             )
             if (uiState.pendingSyncCount > 0) {
                 Text(
-                    text = "${uiState.pendingSyncCount} pendiente(s) de sincronizacion",
+                    text = "${uiState.pendingSyncCount} pendiente(s) de sincronización",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -248,6 +270,10 @@ internal fun ReportIncidentContent(
                             }
                         }
                     }
+                    LocationMapPreview(
+                        location = uiState.location,
+                        precision = uiState.locationPrecision,
+                    )
                     AuraPrimaryButton(
                         text = if (uiState.isLoadingLocation) {
                             "Buscando GPS..."
@@ -260,9 +286,9 @@ internal fun ReportIncidentContent(
                     )
                     AuraPrimaryButton(
                         text = if (uiState.isLocationConfirmed) {
-                            "Ubicacion confirmada"
+                            "Ubicación confirmada"
                         } else {
-                            "Confirmar ubicacion"
+                            "Confirmar ubicación"
                         },
                         enabled = uiState.location != null,
                         onClick = onConfirmLocation,
@@ -331,4 +357,79 @@ internal fun ReportIncidentContent(
             )
         }
     }
+}
+
+@Composable
+private fun LocationMapPreview(
+    location: AuraLocation?,
+    precision: LocationPrecision,
+) {
+    val mapShape = MaterialTheme.shapes.medium
+    val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1.65f)
+                .clip(mapShape)
+                .background(surfaceVariant),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (location == null) {
+                Text(
+                    text = "Usa el GPS para señalar la ubicación en el mapa.",
+                    modifier = Modifier.padding(20.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            } else {
+                val target = LatLng(location.latitude, location.longitude)
+                val cameraPositionState = rememberCameraPositionState {
+                    position = CameraPosition.fromLatLngZoom(target, 16f)
+                }
+
+                LaunchedEffect(target) {
+                    cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(target, 16f))
+                }
+
+                GoogleMap(
+                    modifier = Modifier.fillMaxSize(),
+                    cameraPositionState = cameraPositionState,
+                    properties = MapProperties(isBuildingEnabled = false),
+                    uiSettings = MapUiSettings(
+                        compassEnabled = false,
+                        mapToolbarEnabled = false,
+                        myLocationButtonEnabled = false,
+                        rotationGesturesEnabled = false,
+                        scrollGesturesEnabled = false,
+                        tiltGesturesEnabled = false,
+                        zoomControlsEnabled = false,
+                        zoomGesturesEnabled = false,
+                    ),
+                ) {
+                    Marker(
+                        state = MarkerState(position = target),
+                        title = "Ubicación del incidente",
+                    )
+                }
+            }
+        }
+
+        Text(
+            text = if (location == null) {
+                "Vista previa privada de la ubicación del incidente."
+            } else {
+                "Ubicación señalada · Se publicará con precisión ${precision.publicLabel()}."
+            },
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+private fun LocationPrecision.publicLabel(): String = when (this) {
+    LocationPrecision.EXACT,
+    LocationPrecision.APPROXIMATE -> "aproximada"
+    LocationPrecision.DISTRICT_ONLY -> "de distrito"
 }

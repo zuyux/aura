@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import io.aura.android.BuildConfig
 import io.aura.android.feature.alerts.AlertDetailScreen
+import io.aura.android.feature.alerts.AlertsDisplayMode
 import io.aura.android.feature.alerts.AlertsListScreen
 import io.aura.android.feature.evidence.AddEvidenceScreen
 import io.aura.android.feature.guardian.GuardianScreen
@@ -95,6 +96,7 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
     val currentTopLevelRoute = when (currentRoute) {
         AuraRoute.LEGACY_HOME_ROUTE -> AuraRoute.Home.route
         AuraRoute.AlertDetail.route -> AuraRoute.Alerts.route
+        AuraRoute.AlertsMap.route -> AuraRoute.Alerts.route
         AuraRoute.AddEvidence.route -> AuraRoute.Report.route
         else -> currentRoute
     }
@@ -150,6 +152,14 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
                     onAddEvidenceClick = { reportId ->
                         navController.navigate(AuraRoute.addEvidenceRoute(reportId))
                     },
+                    onReportSubmitted = {
+                        navController.navigate(AuraRoute.AlertsMap.route) {
+                            popUpTo(AuraRoute.Report.route) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    },
                 )
             }
             composable(
@@ -160,6 +170,14 @@ fun AuraAppNavHost(profileViewModel: ProfileViewModel = hiltViewModel()) {
             }
             composable(AuraRoute.Alerts.route) {
                 AlertsListScreen(
+                    onAlertClick = { alertId ->
+                        navController.navigate(AuraRoute.alertDetailRoute(alertId))
+                    },
+                )
+            }
+            composable(AuraRoute.AlertsMap.route) {
+                AlertsListScreen(
+                    initialDisplayMode = AlertsDisplayMode.MAP,
                     onAlertClick = { alertId ->
                         navController.navigate(AuraRoute.alertDetailRoute(alertId))
                     },

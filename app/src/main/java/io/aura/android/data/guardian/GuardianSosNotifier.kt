@@ -43,7 +43,7 @@ sealed interface SmsFallbackResult {
 
 fun guardianSosMessage(location: AuraLocation?): String {
     val locationText = if (location == null) {
-        "Ubicacion aun no disponible."
+        "Ubicación aún no disponible."
     } else {
         val latitude = String.format(Locale.US, "%.5f", location.latitude)
         val longitude = String.format(Locale.US, "%.5f", location.longitude)

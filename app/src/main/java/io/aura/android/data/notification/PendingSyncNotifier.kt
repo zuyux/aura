@@ -23,13 +23,13 @@ class PendingSyncNotifier @Inject constructor(
         if (pendingCount <= 0 || !context.canPostNotifications()) return
 
         val text = if (pendingCount == 1) {
-            "Hay 1 elemento esperando conexion para sincronizarse."
+            "Hay 1 elemento esperando conexión para sincronizarse."
         } else {
-            "Hay $pendingCount elementos esperando conexion para sincronizarse."
+            "Hay $pendingCount elementos esperando conexión para sincronizarse."
         }
         val notification = NotificationCompat.Builder(context, PENDING_SYNC_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_monochrome)
-            .setContentTitle("Sincronizacion pendiente")
+            .setContentTitle("Sincronización pendiente")
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setContentIntent(context.openAppPendingIntent())

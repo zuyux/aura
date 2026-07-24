@@ -48,6 +48,22 @@ val supabaseUrl = normalizeBaseUrl(environmentValue("SUPABASE_URL").ifBlank {
 })
 val supabasePublishableKey = environmentValue("SUPABASE_PUBLISHABLE_KEY")
 
+fun validateReleaseDatabaseConfiguration() {
+    require(supabaseUrl.startsWith("https://") && !supabaseUrl.contains("example.supabase.co")) {
+        "Release builds require SUPABASE_URL to be a real HTTPS Supabase project URL."
+    }
+    require(supabasePublishableKey.isNotBlank()) {
+        "Release builds require SUPABASE_PUBLISHABLE_KEY in .env.local or the environment."
+    }
+    require(!supabasePublishableKey.startsWith("sb_secret_")) {
+        "SUPABASE_PUBLISHABLE_KEY must be a publishable/anon key, never a secret key."
+    }
+}
+
+if (gradle.startParameter.taskNames.any { task -> task.contains("release", ignoreCase = true) }) {
+    validateReleaseDatabaseConfiguration()
+}
+
 android {
     namespace = "io.aura.android"
     compileSdk = 34

@@ -83,7 +83,7 @@ fun AlertDetailScreen(
                     AuraSectionHeader(
                         modifier = Modifier.weight(1f),
                         title = "Detalle de alerta",
-                        subtitle = "Revisa la informacion antes de confirmar o descartar.",
+                        subtitle = "Revisa la información antes de confirmar o descartar.",
                     )
                 }
 
@@ -144,7 +144,7 @@ private fun AlertDetailContent(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = alert.summary ?: "Sin descripcion adicional.",
+                        text = alert.summary ?: "Sin descripción adicional.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -159,14 +159,14 @@ private fun AlertDetailContent(
                 AssistChip(onClick = {}, label = { Text(alert.distanceLabel()) })
                 AssistChip(onClick = {}, label = { Text(alert.relativeTimeLabel()) })
                 AssistChip(onClick = {}, label = { Text("Severidad ${alert.severity.label()}") })
-                AssistChip(onClick = {}, label = { Text("Ubicacion ${alert.location.precision.label()}") })
+                AssistChip(onClick = {}, label = { Text("Ubicación ${alert.location.precision.label()}") })
             }
         }
     }
 
     AuraOfflineBanner(
-        title = "Verificacion local",
-        message = "Tu accion se guarda en el dispositivo y quedara lista para sincronizarse.",
+        title = "Verificación local",
+        message = "Tu acción se guarda en el dispositivo y quedará lista para sincronizarse.",
     )
 
     Card(
@@ -189,7 +189,7 @@ private fun AlertDetailContent(
             ) {
                 Icon(imageVector = Icons.Outlined.CheckCircle, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Yo tambien lo vi")
+                Text("Yo también lo vi")
             }
             OutlinedButton(
                 onClick = { onAction(VerificationAction.SEEMS_FALSE) },
@@ -227,7 +227,7 @@ private fun AlertDetailContent(
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = "Ubicacion protegida",
+                    text = "Ubicación protegida",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )

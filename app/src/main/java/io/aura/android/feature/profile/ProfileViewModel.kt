@@ -63,7 +63,7 @@ class ProfileViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         privacyDisclaimerAccepted = false,
-                        errorMessage = error.message ?: "No se pudo guardar la confirmacion de privacidad.",
+                        errorMessage = error.message ?: "No se pudo guardar la confirmación de privacidad.",
                     )
                 }
             }
@@ -141,13 +141,13 @@ class ProfileViewModel @Inject constructor(
 
     fun onSmsCodeDetected(code: String) {
         onSmsCodeChanged(code)
-        _uiState.update { it.copy(successMessage = "Codigo SMS detectado automaticamente.") }
+        _uiState.update { it.copy(successMessage = "Código SMS detectado automáticamente.") }
     }
 
     fun onSmsPermissionDenied() {
         _uiState.update {
             it.copy(
-                errorMessage = "Puedes ingresar el codigo manualmente o permitir lectura de SMS.",
+                errorMessage = "Puedes ingresar el código manualmente o permitir lectura de SMS.",
                 successMessage = null,
             )
         }
@@ -230,11 +230,11 @@ class ProfileViewModel @Inject constructor(
                 return
             }
             phoneNumber.length < MIN_PHONE_LENGTH -> {
-                _uiState.update { it.copy(errorMessage = "Ingresa un telefono valido.") }
+                _uiState.update { it.copy(errorMessage = "Ingresa un teléfono válido.") }
                 return
             }
             smsCode.length !in MIN_SMS_CODE_LENGTH..MAX_SMS_CODE_LENGTH -> {
-                _uiState.update { it.copy(errorMessage = "Ingresa el codigo SMS de verificacion.") }
+                _uiState.update { it.copy(errorMessage = "Ingresa el código SMS de verificación.") }
                 return
             }
         }

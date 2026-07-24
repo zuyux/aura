@@ -57,7 +57,7 @@ class ReportIncidentViewModel @Inject constructor(
                 it.copy(
                     isLoadingLocation = true,
                     isLocationConfirmed = false,
-                    locationStatus = "Buscando ubicacion actual",
+                    locationStatus = "Buscando ubicación actual",
                     errorMessage = null,
                     savedReportId = null,
                 )
@@ -68,9 +68,9 @@ class ReportIncidentViewModel @Inject constructor(
                     location = location,
                     isLoadingLocation = false,
                     locationStatus = if (location == null) {
-                        "Permite la ubicacion o activa el GPS"
+                        "Permite la ubicación o activa el GPS"
                     } else {
-                        "Ubicacion actual detectada"
+                        "Ubicación actual detectada"
                     },
                 )
             }
@@ -109,7 +109,7 @@ class ReportIncidentViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isLocationConfirmed = it.location != null,
-                errorMessage = if (it.location == null) "No hay ubicacion disponible." else null,
+                errorMessage = if (it.location == null) "No hay ubicación disponible." else null,
                 savedReportId = null,
             )
         }
@@ -120,8 +120,8 @@ class ReportIncidentViewModel @Inject constructor(
             it.copy(
                 isLoadingLocation = false,
                 isLocationConfirmed = false,
-                locationStatus = "Permiso de ubicacion no concedido",
-                errorMessage = "AURA necesita permiso de ubicacion para usar GPS en este reporte.",
+                locationStatus = "Permiso de ubicación no concedido",
+                errorMessage = "AURA necesita permiso de ubicación para usar GPS en este reporte.",
                 savedReportId = null,
             )
         }
@@ -136,11 +136,11 @@ class ReportIncidentViewModel @Inject constructor(
         }
         val location = state.location
         if (location == null) {
-            _uiState.update { it.copy(errorMessage = "No hay ubicacion disponible.") }
+            _uiState.update { it.copy(errorMessage = "No hay ubicación disponible.") }
             return
         }
         if (!state.isLocationConfirmed) {
-            _uiState.update { it.copy(errorMessage = "Confirma la ubicacion aproximada del incidente.") }
+            _uiState.update { it.copy(errorMessage = "Confirma la ubicación aproximada del incidente.") }
             return
         }
 
@@ -169,7 +169,7 @@ class ReportIncidentViewModel @Inject constructor(
                         isLocationConfirmed = it.isLocationConfirmed,
                         savedReportId = report.id,
                         canAddEvidence = true,
-                        savedReportMessage = "Reporte guardado localmente y agregado a sincronizacion pendiente.",
+                        savedReportMessage = "Reporte guardado localmente y agregado a sincronización pendiente.",
                         pendingSyncCount = it.pendingSyncCount,
                     )
                 }
@@ -193,7 +193,7 @@ class ReportIncidentViewModel @Inject constructor(
         }
         val location = state.location
         if (location == null) {
-            _uiState.update { it.copy(errorMessage = "No hay ubicacion disponible.") }
+            _uiState.update { it.copy(errorMessage = "No hay ubicación disponible.") }
             return
         }
 
@@ -241,7 +241,7 @@ data class ReportIncidentUiState(
     val selectedType: IncidentType? = null,
     val severity: SeverityLevel = SeverityLevel.MEDIUM,
     val location: AuraLocation? = null,
-    val locationStatus: String = "Usa GPS para detectar la ubicacion actual",
+    val locationStatus: String = "Usa GPS para detectar la ubicación actual",
     val locationPrecision: LocationPrecision = LocationPrecision.APPROXIMATE,
     val isLocationConfirmed: Boolean = false,
     val isLoadingLocation: Boolean = false,

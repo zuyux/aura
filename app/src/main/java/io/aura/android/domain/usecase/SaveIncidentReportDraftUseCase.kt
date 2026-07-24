@@ -18,7 +18,7 @@ class SaveIncidentReportDraftUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(input: SaveIncidentReportDraftInput): IncidentReport {
         require(input.description.length <= CreateIncidentReportUseCase.MAX_DESCRIPTION_LENGTH) {
-            "La descripcion debe tener ${CreateIncidentReportUseCase.MAX_DESCRIPTION_LENGTH} caracteres o menos."
+            "La descripción debe tener ${CreateIncidentReportUseCase.MAX_DESCRIPTION_LENGTH} caracteres o menos."
         }
 
         val now = System.currentTimeMillis()

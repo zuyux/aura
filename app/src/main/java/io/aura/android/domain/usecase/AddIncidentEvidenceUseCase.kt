@@ -9,7 +9,7 @@ class AddIncidentEvidenceUseCase @Inject constructor(
     private val incidentEvidenceRepository: IncidentEvidenceRepository,
 ) {
     suspend operator fun invoke(input: AddIncidentEvidenceInput): IncidentEvidence {
-        require(input.reportId.isNotBlank()) { "No se encontro el reporte para adjuntar evidencia." }
+        require(input.reportId.isNotBlank()) { "No se encontró el reporte para adjuntar evidencia." }
         require(input.sourceUri.isNotBlank()) { "Selecciona un archivo de evidencia." }
 
         return incidentEvidenceRepository.addEvidence(

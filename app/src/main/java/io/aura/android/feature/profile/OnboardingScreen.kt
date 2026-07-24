@@ -91,7 +91,7 @@ fun OnboardingScreen(
             onDismissRequest = { showSmsRationale = false },
             title = { Text("Verificar por SMS") },
             text = {
-                Text("AURA puede leer el SMS de verificacion para completar el codigo automaticamente.")
+                Text("AURA puede leer el SMS de verificación para completar el código automáticamente.")
             },
             confirmButton = {
                 TextButton(
@@ -135,7 +135,7 @@ fun OnboardingScreen(
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "Usaremos tu nombre para personalizar AURA y tu telefono para verificar el inicio.",
+                text = "Usaremos tu nombre para personalizar AURA y tu teléfono para verificar el inicio.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -191,7 +191,7 @@ fun OnboardingScreen(
                 value = uiState.smsCode,
                 onValueChange = onSmsCodeChanged,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Codigo SMS") },
+                label = { Text("Código SMS") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )

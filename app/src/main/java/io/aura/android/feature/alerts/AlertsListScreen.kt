@@ -41,11 +41,12 @@ import io.aura.android.domain.model.Alert
 @Composable
 fun AlertsListScreen(
     onAlertClick: (String) -> Unit,
+    initialDisplayMode: AlertsDisplayMode = AlertsDisplayMode.MAP,
     modifier: Modifier = Modifier,
     viewModel: AlertsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var displayMode by remember { mutableStateOf(AlertsDisplayMode.LIST) }
+    var displayMode by remember(initialDisplayMode) { mutableStateOf(initialDisplayMode) }
 
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
@@ -56,11 +57,11 @@ fun AlertsListScreen(
         ) {
             AuraSectionHeader(
                 title = "Alertas cercanas",
-                subtitle = "Incidentes recientes guardados localmente para revisar rapido.",
+                subtitle = "Incidentes recientes guardados localmente para revisar rápido.",
             )
             AuraOfflineBanner(
                 title = "Modo local-first",
-                message = "Las alertas se muestran desde el dispositivo y podran sincronizarse despues.",
+                message = "Las alertas se muestran desde el dispositivo y podrán sincronizarse después.",
             )
 
             AlertsModeSelector(
@@ -81,7 +82,7 @@ fun AlertsListScreen(
                         "No hay alertas de ${uiState.selectedFilter.label.lowercase()}"
                     },
                     body = if (uiState.totalAlerts == 0) {
-                        "Cuando se registren incidentes en tu zona apareceran aqui."
+                        "Cuando se registren incidentes en tu zona aparecerán aquí."
                     } else {
                         "Prueba con otro filtro para revisar el resto de alertas guardadas."
                     },
@@ -144,9 +145,9 @@ private fun AlertFilterRow(
     }
 }
 
-private enum class AlertsDisplayMode(val label: String) {
-    LIST("Lista"),
+enum class AlertsDisplayMode(val label: String) {
     MAP("Mapa"),
+    LIST("Lista"),
 }
 
 @OptIn(ExperimentalLayoutApi::class)

@@ -37,6 +37,7 @@ import io.aura.android.domain.repository.ProfileSettingsRepository
 import io.aura.android.feature.alerts.AlertDetailScreen
 import io.aura.android.feature.alerts.AlertDetailViewModel
 import io.aura.android.feature.alerts.AlertsListScreen
+import io.aura.android.feature.alerts.AlertsDisplayMode
 import io.aura.android.feature.alerts.AlertsViewModel
 import io.aura.android.feature.guardian.GuardianScreen
 import io.aura.android.feature.guardian.GuardianViewModel
@@ -119,7 +120,7 @@ class AuraComposeUiTest {
                     onUseGpsClick = {
                         uiState = uiState.copy(
                             location = testLocation,
-                            locationStatus = "Ubicacion actual detectada",
+                            locationStatus = "Ubicación actual detectada",
                         )
                     },
                     onConfirmLocation = { uiState = uiState.copy(isLocationConfirmed = uiState.location != null) },
@@ -134,7 +135,7 @@ class AuraComposeUiTest {
                         uiState = uiState.copy(
                             savedReportId = "report-1",
                             canAddEvidence = true,
-                            savedReportMessage = "Reporte guardado localmente y agregado a sincronizacion pendiente.",
+                            savedReportMessage = "Reporte guardado localmente y agregado a sincronización pendiente.",
                         )
                     },
                     onAddEvidenceClick = { evidenceReportId = it },
@@ -145,8 +146,8 @@ class AuraComposeUiTest {
         composeRule.onNodeWithText("Robo").performClick()
         composeRule.onNodeWithText("Alta").performClick()
         composeRule.onNodeWithText("Usar GPS actual").performClick()
-        composeRule.onNodeWithText("Ubicacion actual detectada").assertIsDisplayed()
-        composeRule.onNodeWithText("Confirmar ubicacion").performClick()
+        composeRule.onNodeWithText("Ubicación actual detectada").assertIsDisplayed()
+        composeRule.onNodeWithText("Confirmar ubicación").performClick()
         composeRule.onNodeWithText("Descripción opcional").performTextInput("Auto sospechoso cerca del paradero")
         composeRule.onNodeWithText("Guardar borrador").assertIsEnabled().performClick()
         composeRule.onNodeWithText("Guardar como pendiente").assertIsEnabled().performClick()
@@ -169,6 +170,7 @@ class AuraComposeUiTest {
             AuraTheme {
                 AlertsListScreen(
                     onAlertClick = { openedAlertId = it },
+                    initialDisplayMode = AlertsDisplayMode.LIST,
                     viewModel = viewModel,
                 )
             }

@@ -51,15 +51,15 @@ fun PrivacyDisclaimerScreen(
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "AURA reduce la exposicion de datos sensibles, pero no reemplaza a los servicios de emergencia.",
+                text = "AURA reduce la exposición de datos sensibles, pero no reemplaza a los servicios de emergencia.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             PrivacyDisclaimerItem(
                 icon = Icons.Outlined.GpsFixed,
-                title = "Ubicacion publica aproximada",
-                body = "Los reportes comunitarios se publican por zona o distrito. La ubicacion exacta se reserva para flujos privados como Red Guardian o SOS.",
+                title = "Ubicación pública aproximada",
+                body = "Los reportes comunitarios se publican por zona o distrito. La ubicación exacta se reserva para flujos privados como Red Guardián o SOS.",
             )
             PrivacyDisclaimerItem(
                 icon = Icons.Outlined.Lock,
@@ -68,8 +68,8 @@ fun PrivacyDisclaimerScreen(
             )
             PrivacyDisclaimerItem(
                 icon = Icons.Outlined.UploadFile,
-                title = "Sincronizacion controlada",
-                body = "Cuando hay conexion, los reportes y acciones pendientes pueden sincronizarse con el backend configurado.",
+                title = "Sincronización controlada",
+                body = "Cuando hay conexión, los reportes y acciones pendientes pueden sincronizarse con el backend configurado.",
             )
             PrivacyDisclaimerItem(
                 icon = Icons.Outlined.CloudOff,

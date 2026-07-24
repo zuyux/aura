@@ -39,6 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -129,10 +130,10 @@ fun GuardianScreen(
     if (showLocationRationale) {
         AlertDialog(
             onDismissRequest = { showLocationRationale = false },
-            title = { Text("Compartir ubicacion") },
+            title = { Text("Compartir ubicación") },
             text = {
                 Text(
-                    "AURA guardara tu ubicacion localmente para esta sesion privada de Red Guardian.",
+                    "AURA guardará tu ubicación localmente para esta sesión privada de Red Guardián.",
                 )
             },
             confirmButton = {
@@ -189,7 +190,7 @@ fun GuardianScreen(
         ) {
             AuraSectionHeader(
                 title = "Red Guardián",
-                subtitle = "Comparte tu estado con contactos de confianza durante una situacion de riesgo.",
+                subtitle = "Comparte tu estado con contactos de confianza durante una situación de riesgo.",
             )
 
             SessionCard(
@@ -214,13 +215,37 @@ fun GuardianScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AuraRed,
                     contentColor = Color.White,
+                    disabledContainerColor = AuraRed,
+                    disabledContentColor = Color.White,
                 ),
             ) {
-                Icon(imageVector = Icons.Outlined.Shield, contentDescription = null)
+                if (uiState.isSosProcessing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Icon(imageVector = Icons.Outlined.Shield, contentDescription = null)
+                }
                 Text(
-                    text = "Activar SOS",
+                    text = when {
+                        uiState.isSosPending -> "Enviando SOS en ${uiState.sosCountdownSeconds} s..."
+                        uiState.isSosProcessing -> "Enviando SOS..."
+                        else -> "Activar SOS"
+                    },
                     modifier = Modifier.padding(start = 8.dp),
                 )
+            }
+
+            if (uiState.isSosPending) {
+                OutlinedButton(
+                    onClick = viewModel::cancelSos,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = AuraRed),
+                ) {
+                    Text("Cancelar alerta")
+                }
             }
 
             Button(
@@ -400,7 +425,7 @@ private fun SessionCard(
                 text = when (session?.status) {
                     SafetySessionStatus.ACTIVE -> "Compartiendo estado"
                     SafetySessionStatus.SOS_TRIGGERED -> "SOS activo"
-                    else -> "Sesion lista"
+                    else -> "Sesión lista"
                 },
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary,
@@ -408,9 +433,9 @@ private fun SessionCard(
             )
             Text(
                 text = if (session == null) {
-                    "Agrega contactos e inicia una sesion privada cuando necesites apoyo."
+                    "Agrega contactos e inicia una sesión privada cuando necesites apoyo."
                 } else {
-                    "$contactCount contacto(s) de confianza vinculados a esta sesion local."
+                    "$contactCount contacto(s) de confianza vinculados a esta sesión local."
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -438,7 +463,7 @@ private fun AddContactCard(
         ) {
             AuraSectionHeader(
                 title = "Contacto de confianza",
-                subtitle = "Elige una persona de tus contactos del telefono.",
+                subtitle = "Elige una persona de tus contactos del teléfono.",
             )
             Button(
                 onClick = onPickContact,
@@ -511,7 +536,7 @@ private fun ContactsSection(
             },
             title = { Text("Eliminar contacto") },
             text = {
-                Text("Quieres eliminar a ${contact.displayName} de tu Red Guardian?")
+                Text("¿Quieres eliminar a ${contact.displayName} de tu Red Guardián?")
             },
             confirmButton = {
                 Button(
@@ -544,7 +569,7 @@ private fun ContactsSection(
         if (contacts.isEmpty()) {
             AuraEmptyState(
                 title = "Sin contactos",
-                body = "Agrega al menos un contacto para probar Red Guardian.",
+                body = "Agrega al menos un contacto para probar Red Guardián.",
                 icon = Icons.Outlined.ContactPhone,
             )
         } else {
@@ -707,15 +732,15 @@ private fun GuardianUiState.guardianSmsBody(): String {
     val location = session?.lastLocation
     val statusText = when (session?.status) {
         SafetySessionStatus.SOS_TRIGGERED -> "SOS activo"
-        SafetySessionStatus.ACTIVE -> "Estoy en una sesion de seguridad"
+        SafetySessionStatus.ACTIVE -> "Estoy en una sesión de seguridad"
         else -> "Necesito apoyo"
     }
     val locationText = if (location == null) {
-        "Ubicacion aun no disponible."
+        "Ubicación aún no disponible."
     } else {
         val latitude = String.format(Locale.US, "%.5f", location.latitude)
         val longitude = String.format(Locale.US, "%.5f", location.longitude)
-        "Ubicacion aproximada: $latitude, $longitude. Mapa: https://maps.google.com/?q=$latitude,$longitude"
+        "Ubicación aproximada: $latitude, $longitude. Mapa: https://maps.google.com/?q=$latitude,$longitude"
     }
     return "AURA: $statusText. $locationText Por favor contactame o verifica si estoy bien."
 }

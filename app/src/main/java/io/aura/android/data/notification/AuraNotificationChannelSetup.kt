@@ -19,15 +19,15 @@ class AuraNotificationChannelSetup @Inject constructor(
             listOf(
                 NotificationChannel(
                     GUARDIAN_SESSION_CHANNEL_ID,
-                    "Red Guardian",
+                    "Red Guardián",
                     NotificationManager.IMPORTANCE_DEFAULT,
                 ).apply {
-                    description = "Estado de sesiones activas de Red Guardian"
+                    description = "Estado de sesiones activas de Red Guardián"
                     setShowBadge(false)
                 },
                 NotificationChannel(
                     PENDING_SYNC_CHANNEL_ID,
-                    "Sincronizacion",
+                    "Sincronización",
                     NotificationManager.IMPORTANCE_LOW,
                 ).apply {
                     description = "Estado de datos pendientes de sincronizar"

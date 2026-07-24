@@ -1,13 +1,16 @@
 package io.aura.android.data.repository
 
 import androidx.room.withTransaction
+import io.aura.android.data.local.dao.AlertDao
 import io.aura.android.data.local.dao.IncidentReportDao
 import io.aura.android.data.local.dao.SyncQueueDao
 import io.aura.android.data.local.database.AuraDatabase
+import io.aura.android.data.local.entity.AlertEntity
 import io.aura.android.data.local.entity.SyncQueueEntity
 import io.aura.android.data.mapper.toEntity
 import io.aura.android.data.sync.SyncEntityTypes
 import io.aura.android.data.sync.SyncScheduler
+import io.aura.android.domain.model.AlertStatus
 import io.aura.android.domain.model.IncidentReport
 import io.aura.android.domain.model.SyncOperation
 import io.aura.android.domain.model.SyncPriority
@@ -19,6 +22,7 @@ import javax.inject.Inject
 class OfflineFirstIncidentReportRepository @Inject constructor(
     private val database: AuraDatabase,
     private val incidentReportDao: IncidentReportDao,
+    private val alertDao: AlertDao,
     private val syncQueueDao: SyncQueueDao,
     private val syncScheduler: SyncScheduler,
 ) : IncidentReportRepository {
@@ -26,6 +30,23 @@ class OfflineFirstIncidentReportRepository @Inject constructor(
         database.withTransaction {
             incidentReportDao.upsert(report.toEntity())
             if (queueForSync) {
+                alertDao.upsertAll(
+                    listOf(
+                        AlertEntity(
+                            id = report.id,
+                            reportId = report.id,
+                            type = report.type,
+                            severity = report.severity,
+                            status = AlertStatus.UNVERIFIED,
+                            latitude = report.location.latitude,
+                            longitude = report.location.longitude,
+                            locationPrecision = report.location.precision,
+                            summary = report.description,
+                            distanceMeters = 0,
+                            reportedAtMillis = report.createdAtMillis,
+                        ),
+                    ),
+                )
                 syncQueueDao.upsert(
                     SyncQueueEntity(
                         id = UUID.randomUUID().toString(),

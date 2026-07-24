@@ -122,7 +122,7 @@ fun AuraEmptyState(
 fun AuraOfflineBanner(
     message: String,
     modifier: Modifier = Modifier,
-    title: String = "Sin conexion",
+    title: String = "Sin conexión",
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),

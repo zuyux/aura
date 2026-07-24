@@ -26,4 +26,7 @@ interface AlertDao {
 
     @Upsert
     suspend fun upsertAll(alerts: List<AlertEntity>)
+
+    @Query("DELETE FROM alerts")
+    suspend fun deleteAll()
 }

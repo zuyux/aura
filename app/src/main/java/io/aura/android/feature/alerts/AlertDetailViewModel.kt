@@ -43,7 +43,7 @@ class AlertDetailViewModel @Inject constructor(
         viewModelScope.launch {
             alertRepository.recordVerification(alertId, action)
             actionMessage.value = when (action) {
-                VerificationAction.ALSO_SEEN -> "Confirmacion guardada localmente."
+                VerificationAction.ALSO_SEEN -> "Confirmación guardada localmente."
                 VerificationAction.SEEMS_FALSE -> "Reporte marcado para revision."
                 VerificationAction.RESOLVED -> "Alerta marcada como resuelta."
                 VerificationAction.HIDE_ALERT -> "Alerta ocultada localmente."

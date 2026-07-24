@@ -159,7 +159,7 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = "Estamos aqui para cuidarnos",
+                    text = "Estamos aquí para cuidarnos",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -196,7 +196,7 @@ fun HomeScreen(
                 )
                 HomeActionRow(
                     title = "Red Guardián",
-                    body = "Comparte tu ubicacion y viaja mas segura",
+                    body = "Comparte tu ubicación y viaja más segura",
                     icon = Icons.Outlined.Groups,
                     onClick = onGuardianClick,
                 )
@@ -256,9 +256,9 @@ private fun GuardianInviteDialog(
                 tint = MaterialTheme.colorScheme.primary,
             )
         },
-        title = { Text("Invitacion a Red Guardian") },
+        title = { Text("Invitación a Red Guardián") },
         text = {
-            Text("${notification.senderName} te agrego a su Red Guardian. Acepta para formar parte y guardar este contacto de confianza.")
+            Text("${notification.senderName} te agregó a su Red Guardián. Acepta para formar parte y guardar este contacto de confianza.")
         },
         confirmButton = {
             Button(onClick = onAccept) {
@@ -296,7 +296,7 @@ private fun GuardianNotificationsDialog(
                 if (uiState.notifications.isEmpty()) {
                     AuraEmptyState(
                         title = "Sin notificaciones",
-                        body = "Tus alertas de SOS e invitaciones de Red Guardian apareceran aqui.",
+                        body = "Tus alertas de SOS e invitaciones de Red Guardián aparecerán aquí.",
                         icon = Icons.Outlined.Notifications,
                     )
                 } else {
@@ -316,7 +316,7 @@ private fun GuardianNotificationsDialog(
         },
         confirmButton = {
             TextButton(onClick = onOpenGuardian) {
-                Text("Red Guardian")
+                Text("Red Guardián")
             }
         },
         dismissButton = {
@@ -428,13 +428,13 @@ private fun NotificationActions(
 private fun notificationTitle(notification: GuardianNotification): String =
     when (notification.type) {
         GuardianNotificationType.SOS_ALERT -> "SOS de ${notification.senderName}"
-        GuardianNotificationType.GUARDIAN_INVITE -> "${notification.senderName} te agrego"
+        GuardianNotificationType.GUARDIAN_INVITE -> "${notification.senderName} te agregó"
     }
 
 private fun GuardianNotification.locationText(): String? {
     val latitude = latitude ?: return null
     val longitude = longitude ?: return null
-    return "Ubicacion: %.5f, %.5f".format(java.util.Locale.US, latitude, longitude)
+    return "Ubicación: %.5f, %.5f".format(java.util.Locale.US, latitude, longitude)
 }
 
 private fun Context.hasSosPermissions(locationPermissionManager: AndroidLocationPermissionManager): Boolean {
@@ -501,7 +501,7 @@ private fun EmergencySosCard(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = "Toca aqui para pedir ayuda",
+                    text = "Toca aquí para pedir ayuda",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     textAlign = TextAlign.Center,

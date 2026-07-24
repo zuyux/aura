@@ -18,6 +18,9 @@ interface IncidentReportDao {
     @Query("SELECT * FROM incident_reports WHERE id = :id")
     suspend fun getReport(id: String): IncidentReportEntity?
 
+    @Query("SELECT * FROM incident_reports WHERE status = :status ORDER BY createdAtMillis DESC")
+    suspend fun getReportsByStatus(status: ReportStatus): List<IncidentReportEntity>
+
     @Query("UPDATE incident_reports SET status = :status, updatedAtMillis = :updatedAtMillis WHERE id = :id")
     suspend fun updateStatus(id: String, status: ReportStatus, updatedAtMillis: Long)
 

@@ -7,6 +7,7 @@ sealed class AuraRoute(val route: String) {
     data object Report : AuraRoute("report")
     data object AddEvidence : AuraRoute("report/{$REPORT_ID_ARG}/evidence")
     data object Alerts : AuraRoute("alerts")
+    data object AlertsMap : AuraRoute("alerts/map")
     data object AlertDetail : AuraRoute("alerts/{$ALERT_ID_ARG}")
     data object Guardian : AuraRoute("guardian")
     data object Profile : AuraRoute("profile")

@@ -4,12 +4,20 @@ import io.aura.android.data.remote.dto.CreateReportRequestDto
 import io.aura.android.data.remote.dto.NetworkAlertDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 interface IncidentRemoteDataSource {
     suspend fun createReport(report: CreateReportRequestDto)
-    suspend fun getCommunityReports(limit: Long = 100): List<NetworkAlertDto>
+    suspend fun getNearbyCommunityReports(
+        latitude: Double,
+        longitude: Double,
+        radiusMeters: Int,
+        limit: Int = 100,
+    ): List<NetworkAlertDto>
 }
 
 class SupabaseIncidentRemoteDataSource @Inject constructor(
@@ -19,10 +27,31 @@ class SupabaseIncidentRemoteDataSource @Inject constructor(
         supabase.from("incident_reports").insert(report)
     }
 
-    override suspend fun getCommunityReports(limit: Long): List<NetworkAlertDto> =
-        supabase.from("incident_reports").select {
-            filter { eq("visibility", "COMMUNITY") }
-            order("occurred_at_millis", Order.DESCENDING)
-            limit(limit)
-        }.decodeList()
+    override suspend fun getNearbyCommunityReports(
+        latitude: Double,
+        longitude: Double,
+        radiusMeters: Int,
+        limit: Int,
+    ): List<NetworkAlertDto> =
+        supabase.postgrest.rpc(
+            function = "nearby_incident_reports",
+            parameters = NearbyIncidentReportsParameters(
+                latitude = latitude,
+                longitude = longitude,
+                radiusMeters = radiusMeters,
+                limit = limit,
+            ),
+        ).decodeList()
 }
+
+@Serializable
+private data class NearbyIncidentReportsParameters(
+    @SerialName("p_latitude")
+    val latitude: Double,
+    @SerialName("p_longitude")
+    val longitude: Double,
+    @SerialName("p_radius_meters")
+    val radiusMeters: Int,
+    @SerialName("p_limit")
+    val limit: Int,
+)

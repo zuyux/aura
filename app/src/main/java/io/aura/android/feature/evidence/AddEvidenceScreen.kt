@@ -191,7 +191,7 @@ fun AddEvidenceScreen(
                     Text("Adjuntos del reporte", style = MaterialTheme.typography.titleMedium)
                     if (evidence.isEmpty()) {
                         Text(
-                            "Aun no hay evidencia adjunta.",
+                            "Aún no hay evidencia adjunta.",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium,
                         )

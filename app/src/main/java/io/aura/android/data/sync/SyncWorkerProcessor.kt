@@ -261,7 +261,7 @@ class SyncWorkerProcessor(
                 inviteePhoneNumber = contact.phoneNumber,
                 inviterName = profile?.displayName,
                 inviterPhoneNumber = profile?.phoneNumber,
-                message = "${profile?.displayName?.takeIf { it.isNotBlank() } ?: "Alguien"} te agrego a su Red Guardian. Acepta para formar parte.",
+                message = "${profile?.displayName?.takeIf { it.isNotBlank() } ?: "Alguien"} te agregó a su Red Guardián. Acepta para formar parte.",
                 createdAtMillis = contact.createdAtMillis,
             ),
         ) }

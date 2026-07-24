@@ -68,8 +68,8 @@ fun ProfileScreen(
                 icon = Icons.Outlined.Person,
             )
             ProfileInfoRow(
-                label = "Telefono",
-                value = profile?.phoneNumber.orEmpty().ifBlank { "Sin telefono" },
+                label = "Teléfono",
+                value = profile?.phoneNumber.orEmpty().ifBlank { "Sin teléfono" },
                 icon = Icons.Outlined.Phone,
             )
             AuraSectionHeader(
@@ -77,7 +77,7 @@ fun ProfileScreen(
                 subtitle = "Preferencias locales para los reportes nuevos.",
             )
             ProfileSwitchRow(
-                label = "Modo anonimo por defecto",
+                label = "Modo anónimo por defecto",
                 value = "Los nuevos reportes ocultaran tu identidad inicialmente.",
                 icon = Icons.Outlined.VisibilityOff,
                 checked = anonymousModeDefault,
@@ -102,8 +102,8 @@ fun ProfileScreen(
                 onCheckedChange = onNotificationsEnabledChanged,
             )
             ProfileSwitchRow(
-                label = "Invitaciones Guardian",
-                value = "Avisa cuando alguien te agregue a su Red Guardian.",
+                label = "Invitaciones Guardián",
+                value = "Avisa cuando alguien te agregue a su Red Guardián.",
                 icon = Icons.Outlined.PersonAdd,
                 checked = notificationsEnabled && guardianInviteNotificationsEnabled,
                 enabled = notificationsEnabled,
@@ -119,7 +119,7 @@ fun ProfileScreen(
             )
             AuraSectionHeader(
                 title = "Acerca de",
-                subtitle = "Informacion de la aplicacion y documentos publicos.",
+                subtitle = "Información de la aplicación y documentos públicos.",
             )
             ProfileInfoRow(
                 label = "Aviso de privacidad",

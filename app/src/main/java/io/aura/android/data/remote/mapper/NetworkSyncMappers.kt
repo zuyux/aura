@@ -167,7 +167,7 @@ private fun GuardianNotification.terminalStatus(): GuardianNotificationStatus? =
 
 private fun defaultGuardianInviteMessage(inviter: UserProfile?): String {
     val displayName = inviter?.displayName?.takeIf { it.isNotBlank() } ?: "Alguien"
-    return "$displayName te agrego a su Red Guardian. Acepta para formar parte."
+    return "$displayName te agregó a su Red Guardián. Acepta para formar parte."
 }
 
 private inline fun <reified T : Enum<T>> String?.enumValueOrDefault(default: T): T =

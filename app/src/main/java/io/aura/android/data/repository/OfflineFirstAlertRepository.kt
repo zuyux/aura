@@ -2,6 +2,7 @@ package io.aura.android.data.repository
 
 import androidx.room.withTransaction
 import io.aura.android.data.local.dao.AlertDao
+import io.aura.android.data.local.dao.IncidentReportDao
 import io.aura.android.data.local.dao.ReportVerificationDao
 import io.aura.android.data.local.dao.SyncQueueDao
 import io.aura.android.data.local.database.AuraDatabase
@@ -17,6 +18,7 @@ import io.aura.android.domain.model.Alert
 import io.aura.android.domain.model.AlertStatus
 import io.aura.android.domain.model.AuraLocation
 import io.aura.android.domain.model.ReportVerification
+import io.aura.android.domain.model.ReportStatus
 import io.aura.android.domain.model.SyncOperation
 import io.aura.android.domain.model.SyncPriority
 import io.aura.android.domain.model.SyncStatus
@@ -31,6 +33,7 @@ import io.aura.android.data.remote.IncidentRemoteDataSource
 class OfflineFirstAlertRepository @Inject constructor(
     private val database: AuraDatabase,
     private val alertDao: AlertDao,
+    private val incidentReportDao: IncidentReportDao,
     private val reportVerificationDao: ReportVerificationDao,
     private val syncQueueDao: SyncQueueDao,
     private val incidentRemoteDataSource: IncidentRemoteDataSource,
@@ -88,10 +91,35 @@ class OfflineFirstAlertRepository @Inject constructor(
 
         runCatching {
             mapNetworkErrors {
-                incidentRemoteDataSource.getCommunityReports()
+                incidentRemoteDataSource.getNearbyCommunityReports(
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    radiusMeters = radiusMeters,
+                )
             }
         }.onSuccess { remoteAlerts ->
-            alertDao.upsertAll(remoteAlerts.map { alert -> alert.toDomain().toEntity() })
+            val pendingAlerts = incidentReportDao
+                .getReportsByStatus(ReportStatus.PENDING_SYNC)
+                .map { report ->
+                    io.aura.android.data.local.entity.AlertEntity(
+                        id = report.id,
+                        reportId = report.id,
+                        type = report.type,
+                        severity = report.severity,
+                        status = AlertStatus.UNVERIFIED,
+                        latitude = report.latitude,
+                        longitude = report.longitude,
+                        locationPrecision = report.locationPrecision,
+                        summary = report.description,
+                        distanceMeters = 0,
+                        reportedAtMillis = report.createdAtMillis,
+                    )
+                }
+            database.withTransaction {
+                alertDao.deleteAll()
+                alertDao.upsertAll(remoteAlerts.map { alert -> alert.toDomain().toEntity() })
+                alertDao.upsertAll(pendingAlerts)
+            }
         }
     }
 

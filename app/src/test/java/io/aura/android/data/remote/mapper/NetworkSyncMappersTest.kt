@@ -205,7 +205,7 @@ class NetworkSyncMappersTest {
         assertEquals("+51988888888", dto.inviteePhoneNumber)
         assertEquals("Aura User", dto.inviterName)
         assertEquals("+51999999999", dto.inviterPhoneNumber)
-        assertEquals("Aura User te agrego a su Red Guardian. Acepta para formar parte.", dto.message)
+        assertEquals("Aura User te agregó a su Red Guardián. Acepta para formar parte.", dto.message)
         assertEquals(100L, dto.createdAtMillis)
     }
 

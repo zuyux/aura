@@ -18,10 +18,10 @@ class CreateIncidentReportUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(input: CreateIncidentReportInput): IncidentReport {
         require(input.description.length <= MAX_DESCRIPTION_LENGTH) {
-            "La descripcion debe tener $MAX_DESCRIPTION_LENGTH caracteres o menos."
+            "La descripción debe tener $MAX_DESCRIPTION_LENGTH caracteres o menos."
         }
         require(input.isLocationConfirmed) {
-            "Confirma la ubicacion aproximada del incidente."
+            "Confirma la ubicación aproximada del incidente."
         }
 
         val now = System.currentTimeMillis()

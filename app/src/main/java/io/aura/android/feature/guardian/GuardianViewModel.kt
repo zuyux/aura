@@ -38,6 +38,7 @@ class GuardianViewModel @Inject constructor(
     private val draftState = MutableStateFlow(GuardianDraftState())
     private var locationTrackingJob: Job? = null
     private var locationTrackingSessionId: String? = null
+    private var sosCountdownJob: Job? = null
 
     val uiState: StateFlow<GuardianUiState> = combine(
         guardianRepository.observeContacts(),
@@ -54,6 +55,9 @@ class GuardianViewModel @Inject constructor(
             selectedPhoneNumber = draft.selectedPhoneNumber,
             selectedPhotoUri = draft.selectedPhotoUri,
             isBusy = draft.isBusy,
+            isSosProcessing = draft.isSosProcessing,
+            isSosPending = draft.isSosPending,
+            sosCountdownSeconds = draft.sosCountdownSeconds,
             message = draft.message,
             errorMessage = draft.errorMessage,
         )
@@ -104,13 +108,13 @@ class GuardianViewModel @Inject constructor(
 
     fun onContactActionUnavailable() {
         draftState.update {
-            it.copy(errorMessage = "Agrega un contacto de confianza para usar esta accion.", message = null)
+            it.copy(errorMessage = "Agrega un contacto de confianza para usar esta acción.", message = null)
         }
     }
 
     fun onExternalActionUnavailable() {
         draftState.update {
-            it.copy(errorMessage = "No hay una app disponible para completar esta accion.", message = null)
+            it.copy(errorMessage = "No hay una app disponible para completar esta acción.", message = null)
         }
     }
 
@@ -119,7 +123,7 @@ class GuardianViewModel @Inject constructor(
         val selectedContactName = state.selectedContactName.trim()
         val phoneNumber = state.selectedPhoneNumber.trim()
         if (selectedContactName.isBlank() || phoneNumber.isBlank()) {
-            draftState.update { it.copy(errorMessage = "Elige un contacto del telefono.") }
+            draftState.update { it.copy(errorMessage = "Elige un contacto del teléfono.") }
             return
         }
 
@@ -137,7 +141,7 @@ class GuardianViewModel @Inject constructor(
                 )
             }.onSuccess {
                 draftState.update {
-                    GuardianDraftState(message = "Contacto guardado. Invitacion enviada para aprobacion.")
+                    GuardianDraftState(message = "Contacto guardado. Invitación enviada para aprobación.")
                 }
             }.onFailure { error ->
                 draftState.update { it.copy(errorMessage = error.message ?: "No se pudo guardar el contacto.") }
@@ -152,7 +156,7 @@ class GuardianViewModel @Inject constructor(
             }.onSuccess {
                 draftState.update {
                     it.copy(
-                        message = "${contact.displayName} fue eliminado de Red Guardian.",
+                        message = "${contact.displayName} fue eliminado de Red Guardián.",
                         errorMessage = null,
                     )
                 }
@@ -183,7 +187,7 @@ class GuardianViewModel @Inject constructor(
                         id = UUID.randomUUID().toString(),
                         sessionId = session.id,
                         location = location,
-                        note = "Sesion iniciada",
+                        note = "Sesión iniciada",
                         createdAtMillis = now,
                     ),
                 )
@@ -192,15 +196,15 @@ class GuardianViewModel @Inject constructor(
                     it.copy(
                         isBusy = false,
                         message = if (location == null) {
-                            "Sesion iniciada sin GPS. Puedes compartir ubicacion cuando este disponible."
+                            "Sesión iniciada sin GPS. Puedes compartir ubicación cuando esté disponible."
                         } else {
-                            "Sesion iniciada y ubicacion guardada localmente."
+                            "Sesión iniciada y ubicación guardada localmente."
                         },
                     )
                 }
             }.onFailure { error ->
                 draftState.update {
-                    it.copy(isBusy = false, errorMessage = error.message ?: "No se pudo iniciar la sesion.")
+                    it.copy(isBusy = false, errorMessage = error.message ?: "No se pudo iniciar la sesión.")
                 }
             }
         }
@@ -208,7 +212,7 @@ class GuardianViewModel @Inject constructor(
 
     fun shareLocation() {
         val session = uiState.value.activeSession ?: run {
-            draftState.update { it.copy(errorMessage = "Inicia una sesion antes de compartir ubicacion.") }
+            draftState.update { it.copy(errorMessage = "Inicia una sesión antes de compartir ubicación.") }
             return
         }
         viewModelScope.launch {
@@ -216,15 +220,15 @@ class GuardianViewModel @Inject constructor(
             val location = runCatching { locationProvider.getCurrentLocation() }.getOrNull()
             if (location == null) {
                 draftState.update {
-                    it.copy(isBusy = false, errorMessage = "No se pudo obtener la ubicacion actual.")
+                    it.copy(isBusy = false, errorMessage = "No se pudo obtener la ubicación actual.")
                 }
                 return@launch
             }
             saveSessionUpdate(
                 session = session.copy(lastLocation = location),
                 location = location,
-                note = "Ubicacion compartida",
-                message = "Ubicacion guardada para compartir con tus contactos.",
+                note = "Ubicación compartida",
+                message = "Ubicación guardada para compartir con tus contactos.",
             )
         }
     }
@@ -242,8 +246,30 @@ class GuardianViewModel @Inject constructor(
     }
 
     fun triggerSos() {
-        viewModelScope.launch {
-            draftState.update { it.copy(isBusy = true, errorMessage = null, message = null) }
+        if (sosCountdownJob?.isActive == true || draftState.value.isBusy) return
+
+        sosCountdownJob = viewModelScope.launch {
+            draftState.update {
+                it.copy(
+                    isBusy = true,
+                    isSosProcessing = true,
+                    isSosPending = true,
+                    sosCountdownSeconds = SOS_COUNTDOWN_SECONDS,
+                    errorMessage = null,
+                    message = null,
+                )
+            }
+            for (secondsRemaining in SOS_COUNTDOWN_SECONDS downTo 1) {
+                draftState.update { it.copy(sosCountdownSeconds = secondsRemaining) }
+                delay(1_000L)
+            }
+            draftState.update {
+                it.copy(
+                    isSosPending = false,
+                    sosCountdownSeconds = 0,
+                )
+            }
+
             val state = uiState.value
             val now = System.currentTimeMillis()
             val location = runCatching { locationProvider.getCurrentLocation() }.getOrNull()
@@ -280,6 +306,9 @@ class GuardianViewModel @Inject constructor(
                 draftState.update {
                     it.copy(
                         isBusy = false,
+                        isSosProcessing = false,
+                        isSosPending = false,
+                        sosCountdownSeconds = 0,
                         message = sosSuccessMessage(
                             locationAvailable = session.lastLocation != null,
                             smsResult = smsResult,
@@ -288,9 +317,33 @@ class GuardianViewModel @Inject constructor(
                 }
             }.onFailure { error ->
                 draftState.update {
-                    it.copy(isBusy = false, errorMessage = error.message ?: "No se pudo activar SOS.")
+                    it.copy(
+                        isBusy = false,
+                        isSosProcessing = false,
+                        isSosPending = false,
+                        sosCountdownSeconds = 0,
+                        errorMessage = error.message ?: "No se pudo activar SOS.",
+                    )
                 }
             }
+            sosCountdownJob = null
+        }
+    }
+
+    fun cancelSos() {
+        if (!draftState.value.isSosPending) return
+
+        sosCountdownJob?.cancel()
+        sosCountdownJob = null
+        draftState.update {
+            it.copy(
+                isBusy = false,
+                isSosProcessing = false,
+                isSosPending = false,
+                sosCountdownSeconds = 0,
+                message = "Alerta SOS cancelada.",
+                errorMessage = null,
+            )
         }
     }
 
@@ -304,8 +357,8 @@ class GuardianViewModel @Inject constructor(
             val didEndSession = saveSessionUpdate(
                 session = endedSession,
                 location = session.lastLocation,
-                note = "Sesion finalizada",
-                message = "Sesion finalizada como segura.",
+                note = "Sesión finalizada",
+                message = "Sesión finalizada como segura.",
             )
             if (didEndSession) stopLocationTracking()
         }
@@ -334,7 +387,7 @@ class GuardianViewModel @Inject constructor(
             draftState.update { it.copy(isBusy = false, message = message) }
         }.onFailure { error ->
             draftState.update {
-                it.copy(isBusy = false, errorMessage = error.message ?: "No se pudo actualizar la sesion.")
+                it.copy(isBusy = false, errorMessage = error.message ?: "No se pudo actualizar la sesión.")
             }
         }
         return result.isSuccess
@@ -359,7 +412,7 @@ class GuardianViewModel @Inject constructor(
                                 id = UUID.randomUUID().toString(),
                                 sessionId = session.id,
                                 location = location,
-                                note = "Ubicacion actualizada",
+                                note = "Ubicación actualizada",
                                 createdAtMillis = System.currentTimeMillis(),
                             ),
                         )
@@ -389,14 +442,14 @@ private fun sosSuccessMessage(
     val locationText = if (locationAvailable) {
         "GPS actual guardado"
     } else {
-        "GPS no disponible todavia"
+        "GPS no disponible todavía"
     }
     val smsText = when (smsResult) {
         is SmsFallbackResult.Sent -> "SMS enviado a ${smsResult.contactCount} contacto(s)"
         SmsFallbackResult.NoContacts -> "sin contactos SMS"
         SmsFallbackResult.PermissionMissing -> "SMS pendiente por permiso"
     }
-    return "SOS activado. $locationText; notificacion de Red Guardian en cola; $smsText."
+    return "SOS activado. $locationText; notificación de Red Guardián en cola; $smsText."
 }
 
 data class GuardianUiState(
@@ -407,6 +460,9 @@ data class GuardianUiState(
     val selectedPhoneNumber: String = "",
     val selectedPhotoUri: String? = null,
     val isBusy: Boolean = false,
+    val isSosProcessing: Boolean = false,
+    val isSosPending: Boolean = false,
+    val sosCountdownSeconds: Int = 0,
     val message: String? = null,
     val errorMessage: String? = null,
 ) {
@@ -418,6 +474,9 @@ private data class GuardianDraftState(
     val selectedPhoneNumber: String = "",
     val selectedPhotoUri: String? = null,
     val isBusy: Boolean = false,
+    val isSosProcessing: Boolean = false,
+    val isSosPending: Boolean = false,
+    val sosCountdownSeconds: Int = 0,
     val message: String? = null,
     val errorMessage: String? = null,
 )
@@ -426,4 +485,5 @@ private val SafetySession.isLiveSession: Boolean
     get() = status == SafetySessionStatus.ACTIVE || status == SafetySessionStatus.SOS_TRIGGERED
 
 private const val ACTIVE_SESSION_LOCATION_INTERVAL_MILLIS = 60_000L
+private const val SOS_COUNTDOWN_SECONDS = 5
 private const val SOS_UPDATE_NOTE = "SOS activado"
